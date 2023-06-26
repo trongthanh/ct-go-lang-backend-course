@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 	"strings"
-	"thanhtran/homework/session-01/stack"
+	"thanhtran-s01/stack"
 )
 
 var bracketPairs = map[string]string{
