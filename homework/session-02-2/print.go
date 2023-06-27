@@ -5,8 +5,8 @@ import (
 	"runtime"
 )
 
-func init() {
-	fmt.Println("This is init a")
+func main() {
+	printAllocation()
 }
 
 func printAllocation() {

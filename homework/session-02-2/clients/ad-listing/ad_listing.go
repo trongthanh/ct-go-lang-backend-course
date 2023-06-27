@@ -2,6 +2,7 @@ package ad_listing
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -15,21 +16,46 @@ const (
 	CatePty = "1000"
 )
 
-func NewClient(baseUrl string, retryTimes int, log *log.Logger) *client {
-	// TODO #4 refactor NewClient using functional options
-	return &client{
-		httpClient: http.DefaultClient,
-		baseUrl:    baseUrl,
-		retryTimes: retryTimes,
-		logger:     log,
-	}
-}
-
 type client struct {
 	httpClient *http.Client
 	baseUrl    string
 	retryTimes int
 	logger     *log.Logger
+}
+
+type option func(*client)
+
+func NewClient(opt ...option) *client {
+	// TODO #4 refactor NewClient using functional options ✅
+	c := new(client)
+	for _, o := range opt {
+		o(c)
+	}
+
+	// Set a default client if one was not provided
+	if c.httpClient == nil {
+		c.httpClient = http.DefaultClient
+	}
+
+	return c
+}
+
+func WithBaseUrl(url string) option {
+	return func(c *client) {
+		c.baseUrl = url
+	}
+}
+
+func WithLogger(logger *log.Logger) option {
+	return func(c *client) {
+		c.logger = logger
+	}
+}
+
+func WithRetryTimes(times int) option {
+	return func(c *client) {
+		c.retryTimes = times
+	}
 }
 
 func (c *client) GetAdByCate(ctx context.Context, cate string) (*AdsResponse, error) {
@@ -50,10 +76,15 @@ func (c *client) GetAdByCate(ctx context.Context, cate string) (*AdsResponse, er
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\nResponse %v", string(b))
+	// fmt.Printf("\nResponse %v", string(b))
 
 	var adResp AdsResponse
-	// TODO #2 unmarshal json
+	// TODO #2 unmarshal json ✅
+	unmarshalErr := json.Unmarshal(b, &adResp)
+
+	if unmarshalErr != nil {
+		return nil, unmarshalErr
+	}
 
 	return &adResp, nil
 }
@@ -65,6 +96,9 @@ type AdsResponse struct {
 
 type Ad struct {
 	AdId int `json:"ad_id"`
-	//TODO #1 Define struct
-	// list_id , account_name, subject, list_time
+	// TODO #1 define struct ✅
+	ListId      int    `json:"list_id"`
+	AccountName string `json:"account_name"`
+	Subject     string `json:"subject"`
+	ListTime    int64  `json:"list_time"`
 }
