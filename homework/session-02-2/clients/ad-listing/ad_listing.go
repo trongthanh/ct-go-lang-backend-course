@@ -3,6 +3,7 @@ package ad_listing
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,10 @@ const (
 	BaseUrl = "https://gateway.chotot.com/v1/public/ad-listing"
 	CateVeh = "2000"
 	CatePty = "1000"
+)
+
+var (
+	ServerErr = errors.New("server error")
 )
 
 type client struct {
@@ -66,10 +71,32 @@ func (c *client) GetAdByCate(ctx context.Context, cate string) (*AdsResponse, er
 
 	url := fmt.Sprintf("%v?cg=%v&limit=10", BaseUrl, cate)
 
-	// TODO #3 implement retry if StatusCode = 5xx
-	resp, err := c.httpClient.Get(url)
-	if err != nil {
-		return nil, err
+	fmt.Println("fetching url: ", url)
+	// TODO #3 implement retry if StatusCode = 5xx ✅
+	var resp *http.Response
+	retryFn := func(url string) error {
+		var err error
+
+		resp, err = c.httpClient.Get(url)
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode >= 500 {
+			return ServerErr
+		}
+
+		return nil
+	}
+
+	for i := 0; i <= c.retryTimes; i++ {
+		if err := retryFn(url); err == ServerErr {
+			fmt.Println("Server error, at retry: ", i)
+			continue
+		}
+
+		fmt.Println("retry times: ", i, "/", c.retryTimes)
+		break
 	}
 
 	b, err := io.ReadAll(resp.Body)

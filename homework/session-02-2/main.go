@@ -4,8 +4,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
+	"sync"
 	ad_listing "thanhtran-s02-2/clients/ad-listing"
 )
 
@@ -25,10 +27,30 @@ func main() {
 		ad_listing.WithLogger(logger),
 	)
 
-	ads, err := c.GetAdByCate(context.TODO(), ad_listing.CatePty)
-	if err != nil {
-		panic("GetAdByCate " + err.Error())
+	getAdListing := func(cat string) {
+		ads, err := c.GetAdByCate(context.TODO(), cat)
+		if err != nil {
+			panic("GetAdByCate " + err.Error())
+		}
+		logger.Printf("Number of Ads: %v", ads.Total)
 	}
 
-	logger.Printf("Number of Ads: %v", ads.Total)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		getAdListing(ad_listing.CateVeh)
+		fmt.Println("getAdListing done cate veh")
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		getAdListing(ad_listing.CatePty)
+		fmt.Println("getAdListing done cate pty")
+		wg.Done()
+	}()
+
+	wg.Wait()
 }
+
+
