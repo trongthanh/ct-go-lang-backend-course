@@ -115,7 +115,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := GenerateToken(user.Username, 24*time.Second)
+	token, err := GenerateToken(user.Username, 24*60*60*time.Second)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Error: %s", err.Error())
@@ -139,7 +139,7 @@ type LoginResponse struct {
 }
 
 /*
-TODO #4:
+TODO #4: ✅
 - implement the logic to get user info
 - Extract the JWT token from the header
 - Validate Token
@@ -149,26 +149,50 @@ func self(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 
 	fmt.Println("Self handler", authHeader)
-	// extractUserNameFn := func(authenticationHeader string) (string, error) {
-	//
-	// }
-	//
-	// _, err := extractUserNameFn(authHeader)
-	// if err != nil {
-	// 	return
+	extractUserNameFn := func(authenticationHeader string) (string, error) {
+		tokenString := extractTokenFromHeader(authenticationHeader)
+		fmt.Println("Token:", tokenString)
+		subject, err := ValidateJWTToken(tokenString)
+		fmt.Println("Subject:", subject)
+		if err != nil {
+			fmt.Println("Error:", err.Error())
+			return "", err
+		}
+		return subject, nil
+	}
 
-	user, _ := userStore.Get("thanh")
-	jsonBytes, err := json.Marshal(user)
-
-	// fmt.Println("User:", user)
-
+	username, err := extractUserNameFn(authHeader)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Error: %s", err.Error())
 		return
 	}
+
+	user, _ := userStore.Get(username)
+	jsonBytes, jsonErr := json.Marshal(user)
+
+	if jsonErr != nil || len(user.Username) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Error: getting user info")
+		return
+	}
+
+	fmt.Println("User:", user)
+
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBytes)
 	return
+}
+
+func extractTokenFromHeader(authHeader string) string {
+	// Assuming the token is present in the "Bearer" scheme
+	const bearerPrefix = "Bearer "
+
+	if len(authHeader) > len(bearerPrefix) && authHeader[:len(bearerPrefix)] == bearerPrefix {
+		return authHeader[len(bearerPrefix):]
+	}
+
+	return ""
 }
 
 /*

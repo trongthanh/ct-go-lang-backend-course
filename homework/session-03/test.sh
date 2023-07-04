@@ -19,4 +19,7 @@ curl -X "POST" "http://localhost:8090/api/public/login" \
 	"password": "12345678"
 }'
 
+## Self
+curl "http://localhost:8090/api/private/self" \
+     -H 'Authorization: Bearer ***'
 
