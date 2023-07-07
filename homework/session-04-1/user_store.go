@@ -40,10 +40,8 @@ func (*UserStore) Get(username string) (UserInfo, error) {
 }
 
 type UserInfo struct {
-	// Id         int
-	Username   string `json:"username" validate:"required,min=2,max=32"`
-	FullName   string `json:"full_name" validate:"required"`
-	Address    string `json:"address"`
-	Password   string `json:"password" validate:"required,min=8,max=32"`
+	Username string `json:"username" validate:"required,min=2,max=32"`
+	FullName string `json:"full_name" validate:"required"`
+	Address  string `json:"address"`
+	Password string `json:"password" validate:"required,min=8,max=32"`
 }
-
