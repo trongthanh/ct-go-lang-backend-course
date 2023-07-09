@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/go-playground/validator"
+	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,9 +20,50 @@ func main() {
 
 	e.POST("/api/public/register", register)
 	e.POST("/api/public/login", login)
-	e.GET("/api/private/self", self)
+
+	private := e.Group("/api/private")
+	// example taken from: https://github.com/labstack/echox/blob/master/cookbook/jwt/custom-claims/server.go
+	config := echojwt.Config{
+		ContextKey: "auth",
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(jwt.RegisteredClaims)
+		},
+		ErrorHandler: func(c echo.Context, err error) error {
+			fmt.Println("error:", err)
+			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+		},
+		SigningKey: mySigningKey,
+	}
+
+	private.Use(echojwt.WithConfig(config), jwtMiddleware)
+
+	private.GET("/self", self)
 
 	e.Logger.Fatal(e.Start(":8090"))
+}
+
+/**
+ * Thia middleware help check issuer mismatch
+ * and store the username in the Context
+ */
+func jwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) (err error) {
+		auth := c.Get("auth").(*jwt.Token)
+		claims := auth.Claims.(*jwt.RegisteredClaims)
+		username := claims.Subject
+		issuer := claims.Issuer
+
+		if issuer != jwtIssuer {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token. Issuer mismatch")
+		}
+
+		// store the username in the context for private handlers
+		c.Set("username", username)
+
+		next(c)
+
+		return nil
+	}
 }
 
 type CustomValidator struct {
@@ -92,6 +136,13 @@ func login(c echo.Context) (err error) {
 }
 
 func self(c echo.Context) (err error) {
+	username := c.Get("username").(string)
+	var user UserInfo
+	user, err = userStore.Get(username)
 
-	return c.String(http.StatusOK, "register")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Error: getting user info")
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
