@@ -1,4 +1,4 @@
-module thanhtran-s04-1
+module thanhtran-s04
 
 go 1.20
 
