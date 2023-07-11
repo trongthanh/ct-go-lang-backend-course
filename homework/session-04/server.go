@@ -14,6 +14,8 @@ import (
 func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Use(LoggerMiddleware)
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
@@ -43,7 +45,7 @@ func main() {
 }
 
 /**
- * Thia middleware help check issuer mismatch
+ * This middleware help check issuer mismatch
  * and store the username in the Context
  */
 func jwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -145,4 +147,35 @@ func self(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, user)
+}
+
+func LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Start timer
+		start := time.Now()
+
+		// Call the next handler
+		err := next(c)
+
+		// Calculate request duration
+		duration := time.Since(start)
+
+		status := c.Response().Status
+		if err != nil {
+			// QUESTION:
+			status = err.(*echo.HTTPError).Code
+		}
+
+		// Log the HTTP event
+		logMessage := fmt.Sprintf("[%s] %s %s - %d %s",
+			time.Now().Format("2006-01-02 15:04:05"),
+			c.Request().Method,
+			c.Request().URL.Path,
+			status,
+			duration.String(),
+		)
+		fmt.Println(logMessage)
+
+		return err
+	}
 }
