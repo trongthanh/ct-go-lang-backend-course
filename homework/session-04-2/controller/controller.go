@@ -22,7 +22,7 @@ type ImageBucket interface {
 type UseCase interface {
 	Login(ctx context.Context, req *entity.LoginRequest) (*entity.LoginResponse, error)
 	Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error)
-	// TODO: implement more
+	Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error)
 }
 
 func New(uc UseCase) *Handler {
@@ -73,7 +73,17 @@ func (h *Handler) Login(c echo.Context) error {
 }
 
 func (h *Handler) Self(c echo.Context) error {
-	panic("TODO implement me")
+
+	username := c.Get("username").(string)
+	// QUESTION: SelfRequest or raw string passed to uc.Self?
+	selfReq := &entity.SelfRequest{Username: username}
+
+	resp, err := h.uc.Self(ctx, selfReq)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resp)
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {

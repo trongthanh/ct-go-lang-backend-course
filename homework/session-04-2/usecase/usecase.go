@@ -65,7 +65,18 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 }
 
 func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error) {
-	panic("TODO implement me")
+
+	user, err := uc.store.Get(req.Username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.SelfResponse{
+		Username: user.Username,
+		FullName: user.FullName,
+		Address:  user.Address,
+	}, nil
 }
 
 func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {

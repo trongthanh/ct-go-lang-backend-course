@@ -28,11 +28,11 @@ type LoginResponse struct {
 }
 
 type SelfRequest struct {
+	Username string `json:"username"`
 }
 
 type SelfResponse struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`
 	Address  string `json:"address"`
-	Password string `json:"password"`
 }

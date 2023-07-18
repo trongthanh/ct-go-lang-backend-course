@@ -2,6 +2,7 @@ package main
 
 import (
 	"thanhtran-s04-2/controller"
+	"thanhtran-s04-2/pkg/auth"
 	imagebucket "thanhtran-s04-2/pkg/bucket"
 	"thanhtran-s04-2/pkg/validator"
 	userstore "thanhtran-s04-2/store"
@@ -36,6 +37,8 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 
 	public := e.Group("/api/public")
 	private := e.Group("/api/private")
+
+	private.Use(auth.GetEchoJwtMiddleware(), auth.ExtraJwtMiddleware)
 
 	public.POST("/register", hdl.Register)
 	public.POST("/login", hdl.Login)
