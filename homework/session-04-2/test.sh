@@ -23,3 +23,7 @@ curl -X "POST" "http://localhost:8090/api/public/login" \
 curl "http://localhost:8090/api/private/self" \
      -H 'Authorization: Bearer ***'
 
+
+## Upload image
+curl -X POST "http://localhost:8090/api/private/upload-image" \
+  -F 'file=@/Users/trantrongthanh/Pictures/tot.png'

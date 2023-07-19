@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"thanhtran-s04-2/entity"
@@ -79,9 +81,44 @@ func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*enti
 	}, nil
 }
 
-func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
-	panic("TODO implement me")
+func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageRequest) (*entity.UploadImageResponse, error) {
+	file := req.File
+
+	src, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	// Destination
+	dst, err := os.Create(getPublicFolder() + "/images/" + file.Filename)
+	if err != nil {
+		return nil, err
+	}
+	defer dst.Close()
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		return nil, err
+	}
+
+	url := "http://localhost:8090/images/" + file.Filename
+
+	return &entity.UploadImageResponse{URL: url}, nil
 }
 
 var ErrInvalidUserOrPassword = errors.New("invalid username or password")
 var ErrGenerateToken = errors.New("generate token failed")
+
+func getPublicFolder() string {
+	// Get the current working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	fmt.Println("Current working directory: " + wd)
+
+	// Append the public folder
+	return wd + "/public"
+}

@@ -1,5 +1,7 @@
 package entity
 
+import "mime/multipart"
+
 type UserInfo struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`
@@ -35,4 +37,12 @@ type SelfResponse struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`
 	Address  string `json:"address"`
+}
+
+type UploadImageRequest struct {
+	File *multipart.FileHeader
+}
+
+type UploadImageResponse struct {
+	URL string `json:"url"`
 }

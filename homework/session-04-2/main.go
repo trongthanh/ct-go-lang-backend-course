@@ -31,6 +31,9 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 	e := echo.New()
 	e.Validator = validator.New()
 
+	// Static
+	e.Static("/", "public")
+
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
@@ -44,7 +47,7 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 	public.POST("/login", hdl.Login)
 
 	private.GET("/self", hdl.Self)
-	private.POST("/self", hdl.UploadImage)
+	private.POST("/upload-image", hdl.UploadImage)
 
 	return e
 }

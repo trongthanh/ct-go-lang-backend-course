@@ -23,6 +23,7 @@ type UseCase interface {
 	Login(ctx context.Context, req *entity.LoginRequest) (*entity.LoginResponse, error)
 	Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error)
 	Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error)
+	UploadImage(ctx context.Context, req *entity.UploadImageRequest) (*entity.UploadImageResponse, error)
 }
 
 func New(uc UseCase) *Handler {
@@ -87,5 +88,19 @@ func (h *Handler) Self(c echo.Context) error {
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
-	panic("TODO implement me")
+
+	// Soure
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+	uploadImageReq := &entity.UploadImageRequest{File: file}
+
+	resp, err := h.uc.UploadImage(ctx, uploadImageReq)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resp)
+
 }
