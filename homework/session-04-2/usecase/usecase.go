@@ -3,9 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"thanhtran-s04-2/entity"
@@ -18,7 +16,7 @@ type UserStore interface {
 }
 
 type ImageBucket interface {
-	SaveImage(ctx context.Context, name string, r io.Reader) (string, error)
+	SaveImage(ctx context.Context, name string, r io.Reader) (entity.ImageInfo, error)
 }
 
 func New(userStore UserStore, imageBucket ImageBucket) *ucImplement {
@@ -90,35 +88,16 @@ func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageR
 	}
 	defer src.Close()
 
-	// Destination
-	dst, err := os.Create(getPublicFolder() + "/images/" + file.Filename)
+	imgInfo, err := uc.imgBucket.SaveImage(ctx, file.Filename, src)
 	if err != nil {
 		return nil, err
 	}
-	defer dst.Close()
 
-	// Copy
-	if _, err = io.Copy(dst, src); err != nil {
-		return nil, err
-	}
-
-	url := "http://localhost:8090/images/" + file.Filename
+	host := "http://localhost:8090"
+	url := host + imgInfo.URL
 
 	return &entity.UploadImageResponse{URL: url}, nil
 }
 
 var ErrInvalidUserOrPassword = errors.New("invalid username or password")
 var ErrGenerateToken = errors.New("generate token failed")
-
-func getPublicFolder() string {
-	// Get the current working directory
-	wd, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-
-	fmt.Println("Current working directory: " + wd)
-
-	// Append the public folder
-	return wd + "/public"
-}

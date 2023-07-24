@@ -2,6 +2,12 @@ package entity
 
 import "mime/multipart"
 
+type ImageInfo struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+	URL  string `json:"url"`
+}
+
 type UserInfo struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`

@@ -76,7 +76,6 @@ func (h *Handler) Login(c echo.Context) error {
 func (h *Handler) Self(c echo.Context) error {
 
 	username := c.Get("username").(string)
-	// QUESTION: SelfRequest or raw string passed to uc.Self?
 	selfReq := &entity.SelfRequest{Username: username}
 
 	resp, err := h.uc.Self(ctx, selfReq)
