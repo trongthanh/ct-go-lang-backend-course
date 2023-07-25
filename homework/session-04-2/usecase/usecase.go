@@ -80,15 +80,8 @@ func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*enti
 }
 
 func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageRequest) (*entity.UploadImageResponse, error) {
-	file := req.File
 
-	src, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer src.Close()
-
-	imgInfo, err := uc.imgBucket.SaveImage(ctx, file.Filename, src)
+	imgInfo, err := uc.imgBucket.SaveImage(ctx, req.Filename, req.File)
 	if err != nil {
 		return nil, err
 	}

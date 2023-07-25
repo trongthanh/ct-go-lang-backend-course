@@ -46,7 +46,8 @@ type SelfResponse struct {
 }
 
 type UploadImageRequest struct {
-	File *multipart.FileHeader
+	Filename string
+	File     multipart.File
 }
 
 type UploadImageResponse struct {

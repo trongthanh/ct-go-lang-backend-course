@@ -87,13 +87,18 @@ func (h *Handler) Self(c echo.Context) error {
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
-
-	// Soure
-	file, err := c.FormFile("file")
+	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
-	uploadImageReq := &entity.UploadImageRequest{File: file}
+
+	file, err := fileHeader.Open()
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+
+	uploadImageReq := &entity.UploadImageRequest{Filename: fileHeader.Filename, File: file}
 
 	resp, err := h.uc.UploadImage(ctx, uploadImageReq)
 	if err != nil {
