@@ -6,6 +6,7 @@ import (
 	"io"
 	"time"
 
+	"thanhtran-s04-2/constants"
 	"thanhtran-s04-2/entity"
 	"thanhtran-s04-2/pkg/auth"
 )
@@ -86,8 +87,7 @@ func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageR
 		return nil, err
 	}
 
-	host := "http://localhost:8090"
-	url := host + imgInfo.URL
+	url := constants.Host + imgInfo.URL
 
 	return &entity.UploadImageResponse{URL: url}, nil
 }

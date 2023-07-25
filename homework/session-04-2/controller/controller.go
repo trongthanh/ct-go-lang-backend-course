@@ -87,13 +87,13 @@ func (h *Handler) Self(c echo.Context) error {
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
+	// Source
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
 
 	file, err := fileHeader.Open()
-	defer file.Close()
 	if err != nil {
 		return err
 	}

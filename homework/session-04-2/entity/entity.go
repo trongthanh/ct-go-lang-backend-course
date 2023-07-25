@@ -1,6 +1,8 @@
 package entity
 
-import "mime/multipart"
+import (
+	"io"
+)
 
 type ImageInfo struct {
 	Name string `json:"name"`
@@ -45,9 +47,13 @@ type SelfResponse struct {
 	Address  string `json:"address"`
 }
 
+type FileInterface interface {
+	io.Reader
+}
+
 type UploadImageRequest struct {
 	Filename string
-	File     multipart.File
+	File     FileInterface
 }
 
 type UploadImageResponse struct {
