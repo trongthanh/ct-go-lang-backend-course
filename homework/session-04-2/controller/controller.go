@@ -94,6 +94,7 @@ func (h *Handler) UploadImage(c echo.Context) error {
 	}
 
 	file, err := fileHeader.Open()
+	defer file.Close()
 	if err != nil {
 		return err
 	}

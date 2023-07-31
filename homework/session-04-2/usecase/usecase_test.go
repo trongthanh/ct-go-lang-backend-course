@@ -31,7 +31,7 @@ func TestUcImplement_UploadImage(t *testing.T) {
 	// Mock file data (you can provide your own image data)
 	mockImageData := []byte{ /* Your mock image data here */ }
 
-	// Create a bytes.Buffer as a mock file io.Reader
+	// Create a bytes.Reader as a mock file io.Reader
 	mockFile := bytes.NewReader(mockImageData)
 	ctx := context.Background()
 	req := &entity.UploadImageRequest{
