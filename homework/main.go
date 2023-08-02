@@ -1,13 +1,13 @@
 package main
 
 import (
-	"thanhtran-s04-2/controller"
-	"thanhtran-s04-2/pkg/auth"
-	imagebucket "thanhtran-s04-2/pkg/bucket"
-	"thanhtran-s04-2/pkg/validator"
-	userstore "thanhtran-s04-2/store"
+	"thanhtran/controller"
+	"thanhtran/pkg/auth"
+	imagebucket "thanhtran/pkg/bucket"
+	"thanhtran/pkg/validator"
+	userstore "thanhtran/store"
 
-	"thanhtran-s04-2/usecase"
+	"thanhtran/usecase"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

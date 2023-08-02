@@ -5,8 +5,8 @@ import (
 	"context"
 	"io"
 	"testing"
-	"thanhtran-s04-2/constants"
-	"thanhtran-s04-2/entity"
+	"thanhtran/constants"
+	"thanhtran/entity"
 
 	"gopkg.in/go-playground/assert.v1"
 )

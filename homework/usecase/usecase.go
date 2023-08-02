@@ -6,9 +6,9 @@ import (
 	"io"
 	"time"
 
-	"thanhtran-s04-2/constants"
-	"thanhtran-s04-2/entity"
-	"thanhtran-s04-2/pkg/auth"
+	"thanhtran/constants"
+	"thanhtran/entity"
+	"thanhtran/pkg/auth"
 )
 
 type UserStore interface {

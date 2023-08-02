@@ -1,7 +1,9 @@
-# Session 04-1
+# Integration test for the API
 
 ## Register
-curl -X "POST" "http://localhost:8090/api/public/register" \
+echo "Register new user /register"
+sleep 1
+curl -i -X "POST" "http://localhost:8090/api/public/register" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
 	"username": "thanh",
@@ -10,20 +12,39 @@ curl -X "POST" "http://localhost:8090/api/public/register" \
 	"address": "200 Duong 3/2, Ho Chi Minh city"
 }'
 
+echo "--------------------------"
 
 ## Login
-curl -X "POST" "http://localhost:8090/api/public/login" \
+echo "Login /login"
+sleep 1
+#Make the POST request and store the response in a variable
+response=$(curl -i -X "POST" "http://localhost:8090/api/public/login" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
 	"username": "thanh",
 	"password": "12345678"
-}'
+}')
 
+# Extract the token from the response using grep and awk
+TOKEN=$(echo "$response" | grep -oE '{"Token":"[^"]+' | awk -F'"' '{print $4}')
+
+# Print the token (optional, you can use it as needed in your script)
+echo "Recieved token: $TOKEN"
+
+echo "--------------------------"
+
+echo "Get user info /self"
+sleep 1
 ## Self
-curl "http://localhost:8090/api/private/self" \
-     -H 'Authorization: Bearer ***'
+curl -i "http://localhost:8090/api/private/self" \
+     -H "Authorization: Bearer $TOKEN"
 
-
+echo "--------------------------"
+echo "Upload image /upload-imag"
+sleep 1
 ## Upload image
-curl -X POST "http://localhost:8090/api/private/upload-image" \
-  -F 'file=@/Users/trantrongthanh/Pictures/tot.png'
+curl -i -X POST "http://localhost:8090/api/private/upload-image" \
+     -H "Authorization: Bearer $TOKEN" \
+	 -F 'file=@/Users/trantrongthanh/Pictures/tot.png'
+
+echo ALL TESTS COMPLETED
