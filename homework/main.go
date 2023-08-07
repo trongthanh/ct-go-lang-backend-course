@@ -5,7 +5,7 @@ import (
 	"thanhtran/pkg/auth"
 	imagebucket "thanhtran/pkg/bucket"
 	"thanhtran/pkg/validator"
-	userstore "thanhtran/store"
+	userstore "thanhtran/store/inmem"
 
 	"thanhtran/usecase"
 
@@ -17,7 +17,6 @@ import (
 func main() {
 	userStore := userstore.New()
 	imgBucket := imagebucket.New()
-	// QUESTION: how do we know userStore satisfy UserStore interface?
 	uc := usecase.New(userStore, imgBucket)
 	hdl := controller.New(uc)
 
