@@ -6,8 +6,8 @@ import (
 	"io"
 	"time"
 
-	"thanhtran/constants"
-	"thanhtran/entity"
+	"thanhtran/config"
+	"thanhtran/internal/entity"
 	"thanhtran/pkg/auth"
 )
 

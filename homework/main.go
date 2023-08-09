@@ -1,13 +1,13 @@
 package main
 
 import (
-	"thanhtran/controller"
+	"thanhtran/internal/controller"
+	userstore "thanhtran/internal/store/inmem"
 	"thanhtran/pkg/auth"
 	imagebucket "thanhtran/pkg/bucket"
 	"thanhtran/pkg/validator"
-	userstore "thanhtran/store/inmem"
 
-	"thanhtran/usecase"
+	"thanhtran/internal/usecase"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+
 	userStore := userstore.New()
 	imgBucket := imagebucket.New()
 	uc := usecase.New(userStore, imgBucket)

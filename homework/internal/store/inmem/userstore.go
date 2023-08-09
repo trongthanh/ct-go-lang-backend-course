@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"thanhtran/entity"
+	"thanhtran/internal/entity"
 )
 
 // var Store = NewUserStore()

@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"thanhtran/entity"
+	"thanhtran/internal/entity"
 
 	"github.com/labstack/echo/v4"
 )

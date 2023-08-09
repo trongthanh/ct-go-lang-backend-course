@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 	"sync"
-	"thanhtran/entity"
+	"thanhtran/internal/entity"
 )
 
 type LocalBucket struct {

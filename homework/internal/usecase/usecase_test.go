@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 	"thanhtran/constants"
-	"thanhtran/entity"
+	"thanhtran/internal/entity"
 
 	"gopkg.in/go-playground/assert.v1"
 )
