@@ -3,12 +3,14 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
-	"thanhtran/config"
 	"thanhtran/internal/entity"
 	"thanhtran/pkg/auth"
+
+	"github.com/labstack/gommon/log"
 )
 
 type UserStore interface {
@@ -33,13 +35,19 @@ type ucImplement struct {
 }
 
 func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
+	// optional
+	if user, err := uc.store.Get(req.Username); err == nil && user.Username == req.Username {
+		return nil, fmt.Errorf("username %s already exists", req.Username)
+	}
+
 	if err := uc.store.Save(entity.UserInfo{
 		Username: req.Username,
 		Password: req.Password,
 		FullName: req.FullName,
 		Address:  req.Address,
 	}); err != nil {
-		return nil, err
+		log.Error(err)
+		return nil, fmt.Errorf("save user failed")
 	}
 
 	return &entity.RegisterResponse{Username: req.Username}, nil
@@ -87,9 +95,7 @@ func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageR
 		return nil, err
 	}
 
-	url := constants.Host + imgInfo.URL
-
-	return &entity.UploadImageResponse{URL: url}, nil
+	return &entity.UploadImageResponse{URL: imgInfo.URL}, nil
 }
 
 var ErrInvalidUserOrPassword = errors.New("invalid username or password")
