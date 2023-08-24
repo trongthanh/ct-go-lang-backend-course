@@ -17,6 +17,7 @@ import (
 
 func main() {
 	config := config.Config{
+		Scheme:           "http://",
 		Host:             "localhost",
 		Port:             "8090",
 		MongoURI:         "mongodb://localhost:27017",
@@ -34,12 +35,13 @@ func main() {
 		log.Error(mongoErr)
 	}
 	userStore := mongostore.NewUserStore(db, config.MongoCollUser)
+	imageStore := mongostore.NewImageStore(db, config.MongoCollImage)
 	imgBucket := imagebucket.New()
-	uc := usecase.New(userStore, imgBucket)
+	uc := usecase.New(config, userStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 
 	srv := createServer(hdl)
-	if err := srv.Start(":8090"); err != nil {
+	if err := srv.Start(":" + config.Port); err != nil {
 		log.Error(err)
 	}
 }

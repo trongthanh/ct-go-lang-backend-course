@@ -39,10 +39,8 @@ func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) 
 
 	// store metadata
 	imageInfo := entity.ImageInfo{
-		Name: name,
-		Path: localPath,
-		// Question: not sure if this is the right place to store URL
-		URL: "/images/" + name,
+		FileName: name,
+		Path:     localPath,
 	}
 	lb.data[name] = imageInfo
 

@@ -12,6 +12,7 @@ import (
 var conf Config
 
 type Config struct {
+	Scheme           string
 	Host             string
 	Port             string
 	MongoURI         string

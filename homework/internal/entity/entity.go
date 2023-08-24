@@ -5,9 +5,10 @@ import (
 )
 
 type ImageInfo struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	URL  string `json:"url"`
+	FileName string `json:"file_name"`
+	Path     string `json:"path"`
+	URL      string `json:"url"`
+	Username string `json:"username"`
 }
 
 type UserInfo struct {
@@ -42,9 +43,15 @@ type SelfRequest struct {
 }
 
 type SelfResponse struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	Address  string `json:"address"`
+	Username string          `json:"username"`
+	FullName string          `json:"full_name"`
+	Address  string          `json:"address"`
+	Images   []ImageResponse `json:"images"`
+}
+
+type ImageResponse struct {
+	FileName string `json:"file_name"`
+	URL      string `json:"url"`
 }
 
 type FileInterface interface {
@@ -52,6 +59,7 @@ type FileInterface interface {
 }
 
 type UploadImageRequest struct {
+	Username string
 	Filename string
 	File     FileInterface
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"thanhtran/internal/entity"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func NewUserStore(db *mongo.Database, collName string) *UserStore {
+func NewUserStore(db *mongo.Database, collName string) *userStore {
 	collection := db.Collection(collName)
 	// Create a unique index on the "username" field
 	indexModel := mongo.IndexModel{
@@ -28,11 +29,15 @@ func NewUserStore(db *mongo.Database, collName string) *UserStore {
 
 	fmt.Println("Unique index at username created successfully")
 
-	return &UserStore{collection: collection}
+	return &userStore{
+		client:  collection,
+		timeout: 3 * time.Second,
+	}
 }
 
-type UserStore struct {
-	collection *mongo.Collection
+type userStore struct {
+	client  *mongo.Collection
+	timeout time.Duration
 }
 
 type UserDoc struct {
@@ -43,19 +48,14 @@ type UserDoc struct {
 	Password string             `bson:"password"`
 }
 
-func (u *UserStore) Save(info entity.UserInfo) error {
+func (u *userStore) Save(info entity.UserInfo) error {
 
-	userDoc := UserDoc{
-		Id:       primitive.NewObjectID(),
-		Username: info.Username,
-		FullName: info.FullName,
-		Address:  info.Address,
-		Password: info.Password,
-	}
+	userDoc := NewUserDocument(info)
 
-	fmt.Println("UserStore.Save", userDoc)
+	ctx, cancelFn := context.WithTimeout(context.Background(), u.timeout)
+	defer cancelFn()
 
-	_, err := u.collection.InsertOne(context.Background(), userDoc)
+	_, err := u.client.InsertOne(ctx, userDoc)
 	if err != nil {
 		return err
 	}
@@ -64,12 +64,12 @@ func (u *UserStore) Save(info entity.UserInfo) error {
 	return nil
 }
 
-func (u *UserStore) Get(username string) (entity.UserInfo, error) {
+func (u *userStore) Get(username string) (entity.UserInfo, error) {
 
 	filter := bson.D{{Key: "username", Value: username}}
 
 	var user UserDoc
-	err := u.collection.FindOne(context.Background(), filter).Decode(&user)
+	err := u.client.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return entity.UserInfo{}, nil // Return empty UserInfo if no documents found
@@ -85,6 +85,16 @@ func (u *UserStore) Get(username string) (entity.UserInfo, error) {
 	}
 
 	return userInfo, nil
+}
+
+func NewUserDocument(info entity.UserInfo) UserDoc {
+	return UserDoc{
+		Id:       primitive.NewObjectID(),
+		Username: info.Username,
+		FullName: info.FullName,
+		Address:  info.Address,
+		Password: info.Password,
+	}
 }
 
 var ErrUserNotFound = errors.New("user not found")
