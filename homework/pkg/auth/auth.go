@@ -66,8 +66,6 @@ func ExtraJwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		// store the username in the context for private handlers
 		c.Set("username", username)
 
-		next(c)
-
-		return nil
+		return next(c)
 	}
 }

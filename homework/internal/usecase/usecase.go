@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 type UserStore interface {
 	Save(info entity.UserInfo) error
 	Get(username string) (entity.UserInfo, error)
+	Update(info entity.UserInfo) error
 }
 
 type ImageStore interface {
@@ -129,5 +131,38 @@ func (uc *ucImplement) GetFullURL(url string) string {
 	return uc.config.Scheme + uc.config.Host + ":" + uc.config.Port + url
 }
 
+func (uc *ucImplement) ChangePassword(ctx context.Context, req *entity.ChangePasswordRequest) (*entity.ChangePasswordResponse, error) {
+	user, err := uc.userStore.Get(req.Username)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(req)
+
+	if req.RepeatPassword != req.NewPassword {
+		return nil, ErrRepeatPassword
+	}
+
+	if req.NewPassword == req.CurrentPassword {
+		return nil, ErrSamePassword
+	}
+
+	if user.Password != req.CurrentPassword {
+		return nil, ErrInvalidUserOrPassword
+	}
+
+	// assign new Password
+	user.Password = req.NewPassword
+
+	// fmt.Println("save user", user)
+
+	if err := uc.userStore.Update(user); err != nil {
+		return nil, err
+	}
+
+	return &entity.ChangePasswordResponse{Success: true}, nil
+}
+
+var ErrSamePassword = errors.New("new password is same as current password")
+var ErrRepeatPassword = errors.New("repeat password does not match")
 var ErrInvalidUserOrPassword = errors.New("invalid username or password")
 var ErrGenerateToken = errors.New("generate token failed")

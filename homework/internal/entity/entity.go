@@ -67,3 +67,14 @@ type UploadImageRequest struct {
 type UploadImageResponse struct {
 	URL string `json:"url"`
 }
+
+type ChangePasswordRequest struct {
+	Username        string `json:"username"`
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password" validate:"required,min=8,max=32"`
+	RepeatPassword  string `json:"repeat_password"`
+}
+
+type ChangePasswordResponse struct {
+	Success bool `json:"success"`
+}

@@ -87,6 +87,27 @@ func (u *userStore) Get(username string) (entity.UserInfo, error) {
 	return userInfo, nil
 }
 
+func (u *userStore) Update(info entity.UserInfo) error {
+	filter := bson.D{{Key: "username", Value: info.Username}}
+	update := bson.D{
+		{Key: "$set", Value: bson.D{
+			{Key: "full_name", Value: info.FullName},
+			{Key: "address", Value: info.Address},
+			{Key: "password", Value: info.Password},
+		}},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), u.timeout)
+	defer cancel()
+
+	_, err := u.client.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewUserDocument(info entity.UserInfo) UserDoc {
 	return UserDoc{
 		Id:       primitive.NewObjectID(),

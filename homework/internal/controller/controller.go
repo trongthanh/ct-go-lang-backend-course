@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -24,6 +25,7 @@ type UseCase interface {
 	Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error)
 	Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error)
 	UploadImage(ctx context.Context, req *entity.UploadImageRequest) (*entity.UploadImageResponse, error)
+	ChangePassword(ctx context.Context, req *entity.ChangePasswordRequest) (*entity.ChangePasswordResponse, error)
 }
 
 func New(uc UseCase) *Handler {
@@ -110,4 +112,30 @@ func (h *Handler) UploadImage(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, resp)
 
+}
+
+func (h *Handler) ChangePassword(c echo.Context) error {
+	// username from jwt
+	username := c.Get("username").(string)
+
+	changePasswordReq := new(entity.ChangePasswordRequest)
+	if err := c.Bind(changePasswordReq); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// validate new password
+	if err := c.Validate(changePasswordReq); err != nil {
+		return err
+	}
+
+	changePasswordReq.Username = username
+
+	resp, err := h.uc.ChangePassword(ctx, changePasswordReq)
+
+	fmt.Println("error", err)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resp)
 }
