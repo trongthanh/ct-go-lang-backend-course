@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"time"
 
@@ -45,10 +44,10 @@ type ucImplement struct {
 }
 
 func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
-	// optional
-	if user, err := uc.userStore.Get(req.Username); err == nil && user.Username == req.Username {
-		return nil, fmt.Errorf("username %s already exists", req.Username)
-	}
+	// optional check username exists if unique index is not defined
+	// if user, err := uc.userStore.Get(req.Username); err == nil && user.Username == req.Username {
+	// 	return nil, fmt.Errorf("username %s already exists", req.Username)
+	// }
 
 	if err := uc.userStore.Save(entity.UserInfo{
 		Username: req.Username,
@@ -57,7 +56,8 @@ func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest
 		Address:  req.Address,
 	}); err != nil {
 		log.Error(err)
-		return nil, fmt.Errorf("save user failed")
+		// fmt.Println(err)
+		return nil, err //fmt.Errorf("save user failed")
 	}
 
 	return &entity.RegisterResponse{Username: req.Username}, nil
