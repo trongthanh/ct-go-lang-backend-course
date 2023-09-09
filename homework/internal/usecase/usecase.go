@@ -10,6 +10,7 @@ import (
 	"thanhtran/config"
 	"thanhtran/internal/entity"
 	"thanhtran/pkg/auth"
+	"thanhtran/pkg/hashpass"
 
 	"github.com/labstack/gommon/log"
 )
@@ -17,6 +18,7 @@ import (
 type UserStore interface {
 	Save(info entity.UserInfo) error
 	Get(username string) (entity.UserInfo, error)
+	Update(info entity.UserInfo) error
 }
 
 type ImageStore interface {
@@ -45,19 +47,20 @@ type ucImplement struct {
 }
 
 func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
-	// optional
-	if user, err := uc.userStore.Get(req.Username); err == nil && user.Username == req.Username {
-		return nil, fmt.Errorf("username %s already exists", req.Username)
-	}
+	// optional check username exists if unique index is not defined
+	// if user, err := uc.userStore.Get(req.Username); err == nil && user.Username == req.Username {
+	// 	return nil, fmt.Errorf("username %s already exists", req.Username)
+	// }
 
 	if err := uc.userStore.Save(entity.UserInfo{
-		Username: req.Username,
-		Password: req.Password,
-		FullName: req.FullName,
-		Address:  req.Address,
+		Username:       req.Username,
+		HashedPassword: hashpass.HashPassword(req.Password),
+		FullName:       req.FullName,
+		Address:        req.Address,
 	}); err != nil {
 		log.Error(err)
-		return nil, fmt.Errorf("save user failed")
+		// fmt.Println(err)
+		return nil, err //fmt.Errorf("save user failed")
 	}
 
 	return &entity.RegisterResponse{Username: req.Username}, nil
@@ -70,7 +73,11 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 		return nil, ErrInvalidUserOrPassword
 	}
 
-	if user.Password != req.Password {
+	hashedPassword := hashpass.HashPasswordLogin(req.Password, user.HashedPassword)
+
+	fmt.Println("hashedPassword", hashedPassword)
+
+	if user.HashedPassword != hashedPassword {
 		return nil, ErrInvalidUserOrPassword
 	}
 
@@ -129,5 +136,40 @@ func (uc *ucImplement) GetFullURL(url string) string {
 	return uc.config.Scheme + uc.config.Host + ":" + uc.config.Port + url
 }
 
+func (uc *ucImplement) ChangePassword(ctx context.Context, req *entity.ChangePasswordRequest) (*entity.ChangePasswordResponse, error) {
+	user, err := uc.userStore.Get(req.Username)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(req)
+
+	if req.RepeatPassword != req.NewPassword {
+		return nil, ErrRepeatPassword
+	}
+
+	if req.NewPassword == req.CurrentPassword {
+		return nil, ErrSamePassword
+	}
+
+	loginHashedPassword := hashpass.HashPasswordLogin(req.CurrentPassword, user.HashedPassword)
+
+	if user.HashedPassword != loginHashedPassword {
+		return nil, ErrInvalidUserOrPassword
+	}
+
+	// assign new Password
+	user.HashedPassword = hashpass.HashPasswordLogin(req.NewPassword, user.HashedPassword)
+
+	// fmt.Println("save user", user)
+
+	if err := uc.userStore.Update(user); err != nil {
+		return nil, err
+	}
+
+	return &entity.ChangePasswordResponse{Success: true}, nil
+}
+
+var ErrSamePassword = errors.New("new password is same as current password")
+var ErrRepeatPassword = errors.New("repeat password does not match")
 var ErrInvalidUserOrPassword = errors.New("invalid username or password")
 var ErrGenerateToken = errors.New("generate token failed")

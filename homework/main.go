@@ -67,6 +67,7 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 
 	private.GET("/self", hdl.Self)
 	private.POST("/upload-image", hdl.UploadImage)
+	private.POST("/change-password", hdl.ChangePassword)
 
 	return e
 }
