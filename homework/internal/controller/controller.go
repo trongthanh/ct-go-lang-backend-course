@@ -87,6 +87,8 @@ func (h *Handler) Self(c echo.Context) error {
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
+	// username from jwt
+	username := c.Get("username").(string)
 	// Source
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
@@ -99,7 +101,7 @@ func (h *Handler) UploadImage(c echo.Context) error {
 		return err
 	}
 
-	uploadImageReq := &entity.UploadImageRequest{Filename: fileHeader.Filename, File: file}
+	uploadImageReq := &entity.UploadImageRequest{Username: username, Filename: fileHeader.Filename, File: file}
 
 	resp, err := h.uc.UploadImage(ctx, uploadImageReq)
 	if err != nil {

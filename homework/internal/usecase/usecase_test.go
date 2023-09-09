@@ -45,5 +45,5 @@ func TestUcImplement_UploadImage(t *testing.T) {
 	// Assertions
 	assert.Equal(t, err, nil)
 	assert.NotEqual(t, resp, nil)
-	assert.Equal(t, resp.URL, constants.Host+"/images/dummy.jpg")
+	assert.Equal(t, resp.URL, "/images/dummy.jpg")
 }

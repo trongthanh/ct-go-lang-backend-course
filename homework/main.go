@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"thanhtran/config"
 	"thanhtran/internal/controller"
-	userstore "thanhtran/internal/store/inmem"
+	mongostore "thanhtran/internal/store/mongo"
+	"thanhtran/internal/usecase"
 	"thanhtran/pkg/auth"
 	imagebucket "thanhtran/pkg/bucket"
 	"thanhtran/pkg/validator"
-
-	"thanhtran/internal/usecase"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,14 +16,32 @@ import (
 )
 
 func main() {
+	config := config.Config{
+		Scheme:           "http://",
+		Host:             "localhost",
+		Port:             "8090",
+		MongoURI:         "mongodb://localhost:27017",
+		MongoDB:          "gocourse_db",
+		MongoCollUser:    "users",
+		MongoCollImage:   "images",
+		GoogleCredFile:   "",
+		GoogleBucketName: "",
+	}
 
-	userStore := userstore.New()
+	fmt.Println("Connect to MongoDB:", config.MongoURI)
+	db, mongoErr := mongostore.Connect(config.MongoURI, config.MongoDB)
+	if mongoErr != nil {
+		fmt.Println("Error connecting to MongoDB:", mongoErr)
+		log.Error(mongoErr)
+	}
+	userStore := mongostore.NewUserStore(db, config.MongoCollUser)
+	imageStore := mongostore.NewImageStore(db, config.MongoCollImage)
 	imgBucket := imagebucket.New()
-	uc := usecase.New(userStore, imgBucket)
+	uc := usecase.New(config, userStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 
 	srv := createServer(hdl)
-	if err := srv.Start(":8090"); err != nil {
+	if err := srv.Start(":" + config.Port); err != nil {
 		log.Error(err)
 	}
 }
