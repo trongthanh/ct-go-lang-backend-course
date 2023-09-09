@@ -16,9 +16,12 @@ func Connect(mongoURI string, dbName string) (*mongo.Database, error) {
 	clientOptions := options.Client().ApplyURI(mongoURI)
 	// Set the read preference
 	clientOptions.SetReadPreference(readpref.Primary())
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, _ := mongo.Connect(ctx, clientOptions)
+
+	// Use the Ping method to check the connection
+	err := client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	db := client.Database("gocourse_db")
