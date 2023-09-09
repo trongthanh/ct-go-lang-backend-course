@@ -12,10 +12,10 @@ type ImageInfo struct {
 }
 
 type UserInfo struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	Address  string `json:"address"`
-	Password string `json:"password"`
+	Username       string `json:"username"`
+	FullName       string `json:"full_name"`
+	Address        string `json:"address"`
+	HashedPassword string `json:"hashed_password"`
 }
 
 type RegisterRequest struct {

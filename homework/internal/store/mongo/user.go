@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -41,11 +40,11 @@ type userStore struct {
 }
 
 type UserDoc struct {
-	Id       primitive.ObjectID `bson:"_id"`
-	Username string             `bson:"username" unique:"true"`
-	FullName string             `bson:"full_name"`
-	Address  string             `bson:"address"`
-	Password string             `bson:"password"`
+	Doc            `bson:",inline"`
+	Username       string `bson:"username" unique:"true"`
+	FullName       string `bson:"full_name"`
+	Address        string `bson:"address"`
+	HashedPassword string `bson:"hashed_password"`
 }
 
 func (u *userStore) Save(info entity.UserInfo) error {
@@ -78,10 +77,10 @@ func (u *userStore) Get(username string) (entity.UserInfo, error) {
 	}
 
 	userInfo := entity.UserInfo{
-		Username: user.Username,
-		FullName: user.FullName,
-		Address:  user.Address,
-		Password: user.Password,
+		Username:       user.Username,
+		FullName:       user.FullName,
+		Address:        user.Address,
+		HashedPassword: user.HashedPassword,
 	}
 
 	return userInfo, nil
@@ -93,7 +92,7 @@ func (u *userStore) Update(info entity.UserInfo) error {
 		{Key: "$set", Value: bson.D{
 			{Key: "full_name", Value: info.FullName},
 			{Key: "address", Value: info.Address},
-			{Key: "password", Value: info.Password},
+			{Key: "hashed_password", Value: info.HashedPassword},
 		}},
 	}
 
@@ -108,13 +107,13 @@ func (u *userStore) Update(info entity.UserInfo) error {
 	return nil
 }
 
-func NewUserDocument(info entity.UserInfo) UserDoc {
-	return UserDoc{
-		Id:       primitive.NewObjectID(),
-		Username: info.Username,
-		FullName: info.FullName,
-		Address:  info.Address,
-		Password: info.Password,
+func NewUserDocument(info entity.UserInfo) *UserDoc {
+	return &UserDoc{
+		Doc:            NewDoc(),
+		Username:       info.Username,
+		FullName:       info.FullName,
+		Address:        info.Address,
+		HashedPassword: info.HashedPassword,
 	}
 }
 

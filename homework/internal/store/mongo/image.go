@@ -78,19 +78,19 @@ func (c *imageStore) Get(username string) ([]entity.ImageInfo, error) {
 }
 
 type ImageDoc struct {
-	User      string    `json:"user" bson:"user"`
-	Name      string    `json:"name" bson:"name"`
-	Path      string    `json:"path" bson:"path"`
-	URL       string    `json:"url" bson:"url"`
-	CreatedDt time.Time `json:"createdDt" bson:"createdDt"`
+	Doc  `bson:",inline"`
+	User string `json:"user" bson:"user"`
+	Name string `json:"name" bson:"name"`
+	Path string `json:"path" bson:"path"`
+	URL  string `json:"url" bson:"url"`
 }
 
-func NewImageDocument(info entity.ImageInfo) ImageDoc {
-	return ImageDoc{
-		User:      info.Username,
-		Name:      info.FileName,
-		Path:      info.Path,
-		URL:       info.URL,
-		CreatedDt: time.Now(),
+func NewImageDocument(info entity.ImageInfo) *ImageDoc {
+	return &ImageDoc{
+		Doc:  NewDoc(),
+		User: info.Username,
+		Name: info.FileName,
+		Path: info.Path,
+		URL:  info.URL,
 	}
 }

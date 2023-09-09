@@ -57,8 +57,8 @@ curl -i "http://localhost:8090/api/private/change-password" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
 	"current_password": "12345678",
-	"new_password": "12345679"
-	"repeat_password": "12345679",
+	"new_password": "12345679",
+	"repeat_password": "12345679"
 }'
 
 

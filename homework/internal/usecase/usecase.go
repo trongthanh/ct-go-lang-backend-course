@@ -10,6 +10,7 @@ import (
 	"thanhtran/config"
 	"thanhtran/internal/entity"
 	"thanhtran/pkg/auth"
+	"thanhtran/pkg/hashpass"
 
 	"github.com/labstack/gommon/log"
 )
@@ -52,10 +53,10 @@ func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest
 	// }
 
 	if err := uc.userStore.Save(entity.UserInfo{
-		Username: req.Username,
-		Password: req.Password,
-		FullName: req.FullName,
-		Address:  req.Address,
+		Username:       req.Username,
+		HashedPassword: hashpass.HashPassword(req.Password),
+		FullName:       req.FullName,
+		Address:        req.Address,
 	}); err != nil {
 		log.Error(err)
 		// fmt.Println(err)
@@ -72,7 +73,11 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 		return nil, ErrInvalidUserOrPassword
 	}
 
-	if user.Password != req.Password {
+	hashedPassword := hashpass.HashPasswordLogin(req.Password, user.HashedPassword)
+
+	fmt.Println("hashedPassword", hashedPassword)
+
+	if user.HashedPassword != hashedPassword {
 		return nil, ErrInvalidUserOrPassword
 	}
 
@@ -146,12 +151,14 @@ func (uc *ucImplement) ChangePassword(ctx context.Context, req *entity.ChangePas
 		return nil, ErrSamePassword
 	}
 
-	if user.Password != req.CurrentPassword {
+	loginHashedPassword := hashpass.HashPasswordLogin(req.CurrentPassword, user.HashedPassword)
+
+	if user.HashedPassword != loginHashedPassword {
 		return nil, ErrInvalidUserOrPassword
 	}
 
 	// assign new Password
-	user.Password = req.NewPassword
+	user.HashedPassword = hashpass.HashPasswordLogin(req.NewPassword, user.HashedPassword)
 
 	// fmt.Println("save user", user)
 
