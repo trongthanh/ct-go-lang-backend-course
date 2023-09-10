@@ -3,7 +3,7 @@ package mongostore
 import (
 	"context"
 	"fmt"
-	"thanhtran/internal/entity"
+	"gosocial/internal/entity"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"

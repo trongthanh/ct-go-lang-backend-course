@@ -3,10 +3,10 @@ package localbucket
 import (
 	"context"
 	"fmt"
+	"gosocial/internal/entity"
 	"io"
 	"os"
 	"sync"
-	"thanhtran/internal/entity"
 )
 
 type LocalBucket struct {

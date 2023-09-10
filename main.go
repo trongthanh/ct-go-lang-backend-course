@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"thanhtran/config"
-	"thanhtran/internal/controller"
-	mongostore "thanhtran/internal/store/mongo"
-	"thanhtran/internal/usecase"
-	"thanhtran/pkg/auth"
-	imagebucket "thanhtran/pkg/bucket"
-	"thanhtran/pkg/validator"
+	"gosocial/config"
+	"gosocial/internal/controller"
+	mongostore "gosocial/internal/store/mongo"
+	"gosocial/internal/usecase"
+	"gosocial/pkg/auth"
+	imagebucket "gosocial/pkg/bucket"
+	"gosocial/pkg/validator"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

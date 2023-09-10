@@ -1,4 +1,4 @@
-module thanhtran
+module gosocial
 
 go 1.20
 

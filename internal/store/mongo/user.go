@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gosocial/internal/entity"
 	"log"
-	"thanhtran/internal/entity"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"

@@ -7,10 +7,10 @@ import (
 	"io"
 	"time"
 
-	"thanhtran/config"
-	"thanhtran/internal/entity"
-	"thanhtran/pkg/auth"
-	"thanhtran/pkg/hashpass"
+	"gosocial/config"
+	"gosocial/internal/entity"
+	"gosocial/pkg/auth"
+	"gosocial/pkg/hashpass"
 
 	"github.com/labstack/gommon/log"
 )
