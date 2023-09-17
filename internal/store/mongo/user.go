@@ -9,15 +9,18 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func NewUserStore(db *mongo.Database, collName string) *userStore {
 	collection := db.Collection(collName)
-	// Create a unique index on the "username" field
+	// Create a unique index on the "email" field
 	indexModel := mongo.IndexModel{
-		Keys:    bson.D{{Key: "username", Value: 1}},
+		Keys: bson.D{
+			{Key: "email", Value: 1},
+		},
 		Options: options.Index().SetUnique(true),
 	}
 
@@ -26,7 +29,7 @@ func NewUserStore(db *mongo.Database, collName string) *userStore {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Unique index at username created successfully")
+	fmt.Println("Unique index at email created successfully")
 
 	return &userStore{
 		client:  collection,
@@ -39,62 +42,62 @@ type userStore struct {
 	timeout time.Duration
 }
 
-type UserDoc struct {
-	Doc            `bson:",inline"`
-	Username       string `bson:"username" unique:"true"`
-	FullName       string `bson:"full_name"`
-	Address        string `bson:"address"`
-	HashedPassword string `bson:"hashed_password"`
-}
+func (u *userStore) Save(info entity.User) (primitive.ObjectID, error) {
 
-func (u *userStore) Save(info entity.UserInfo) error {
-
-	userDoc := NewUserDocument(info)
+	userDoc := NewUserDoc(info)
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), u.timeout)
 	defer cancelFn()
 
-	_, err := u.client.InsertOne(ctx, userDoc)
+	result, err := u.client.InsertOne(ctx, userDoc)
 	if err != nil {
-		return err
+		return primitive.ObjectID{}, err
 	}
 
-	fmt.Println("UserStore.Save", info)
-	return nil
+	fmt.Println("UserStore.Save", result)
+	return result.InsertedID.(primitive.ObjectID), nil
 }
 
-func (u *userStore) Get(username string) (entity.UserInfo, error) {
+func (u *userStore) Get(id string) (UserDoc, error) {
 
-	filter := bson.D{{Key: "username", Value: username}}
+	filter := bson.D{{Key: "_id", Value: id}}
 
-	var user UserDoc
-	err := u.client.FindOne(context.Background(), filter).Decode(&user)
+	var userDoc UserDoc
+	err := u.client.FindOne(context.Background(), filter).Decode(&userDoc)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return entity.UserInfo{}, nil // Return empty UserInfo if no documents found
+			return userDoc, nil // Return empty User if no documents found
 		}
-		return entity.UserInfo{}, err
+		return userDoc, err
 	}
 
-	userInfo := entity.UserInfo{
-		Username:       user.Username,
-		FullName:       user.FullName,
-		Address:        user.Address,
-		HashedPassword: user.HashedPassword,
-	}
-
-	return userInfo, nil
+	return userDoc, nil
 }
 
-func (u *userStore) Update(info entity.UserInfo) error {
-	filter := bson.D{{Key: "username", Value: info.Username}}
-	update := bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "full_name", Value: info.FullName},
-			{Key: "address", Value: info.Address},
-			{Key: "hashed_password", Value: info.HashedPassword},
-		}},
+func (u *userStore) GetByEmail(email string) (UserDoc, error) {
+
+	filter := bson.D{{Key: "email", Value: email}}
+
+	var userDoc UserDoc
+	err := u.client.FindOne(context.Background(), filter).Decode(&userDoc)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return userDoc, nil // Return empty User if no documents found
+		}
+		return userDoc, err
 	}
+
+	return userDoc, nil
+}
+
+func (u *userStore) Update(id string, user entity.User) error {
+	filter := bson.D{{Key: "_id", Value: id}}
+	update := bson.M{
+		"$set": bson.M{
+			"email":           user.Email,
+			"hashed_password": user.HashedPassword,
+			"active":          user.Active,
+		}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), u.timeout)
 	defer cancel()
@@ -105,16 +108,6 @@ func (u *userStore) Update(info entity.UserInfo) error {
 	}
 
 	return nil
-}
-
-func NewUserDocument(info entity.UserInfo) *UserDoc {
-	return &UserDoc{
-		Doc:            NewDoc(),
-		Username:       info.Username,
-		FullName:       info.FullName,
-		Address:        info.Address,
-		HashedPassword: info.HashedPassword,
-	}
 }
 
 var ErrUserNotFound = errors.New("user not found")

@@ -1,80 +1,46 @@
 package entity
 
-import (
-	"io"
-)
+import "time"
 
-type ImageInfo struct {
-	FileName string `json:"file_name"`
-	Path     string `json:"path"`
-	URL      string `json:"url"`
-	Username string `json:"username"`
+type User struct {
+	Email          string `json:"email"           bson:"email" unique:"true"`
+	HashedPassword string `json:"hashed_password" bson:"hashed_password"`
+	Active         bool   `json:"active"          bson:"active"`
 }
 
-type UserInfo struct {
-	Username       string `json:"username"`
-	FullName       string `json:"full_name"`
-	Address        string `json:"address"`
-	HashedPassword string `json:"hashed_password"`
+type Profile struct {
+	UserId       string    `json:"user_id"       bson:"user_id"`
+	Bio          string    `json:"bio"           bson:"bio"`
+	AccountType  string    `json:"account_type"  bson:"account_type"`
+	Website      string    `json:"website"       bson:"website"`
+	Name         string    `json:"name"          bson:"name"`
+	Username     string    `json:"username"      bson:"username"`
+	Gender       string    `json:"gender"        bson:"gender"`
+	Birthday     time.Time `json:"birthday"      bson:"birthday"`
+	CloseFriends []string  `json:"close_friends" bson:"close_friends"`
+	Photo        string    `json:"photo"         bson:"photo"`
+	Followers    []Profile `json:"followers"     bson:"followers"`
+	Following    []Profile `json:"following"     bson:"following"`
+	Requests     []Profile `json:"requests"      bson:"requests"`
 }
 
-type RegisterRequest struct {
-	Username string `json:"username" validate:"required,min=2,max=32"`
-	FullName string `json:"full_name" validate:"required"`
-	Address  string `json:"address"`
-	Password string `json:"password" validate:"required,min=8,max=32"`
+type Image struct {
+	Filename string `json:"filename" bson:"filename"`
+	URL      string `json:"url"  bson:"url"`
+	Path     string `json:"path" bson:"path"`
 }
 
-type RegisterResponse struct {
-	Username string `json:"username"`
+type Post struct {
+	Profile  Profile   `json:"profile"  bson:"profile"`
+	Caption  string    `json:"caption"  bson:"caption"`
+	Location string    `json:"location" bson:"location"`
+	HashTags []string  `json:"hashtags" bson:"hashtags"`
+	Likes    []Profile `json:"likes"    bson:"likes"`
+	Image    []Image   `json:"image"    bson:"image"`
+	Comment  []Comment `json:"comment"  bson:"comment"`
 }
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	Token string
-}
-
-type SelfRequest struct {
-	Username string `json:"username"`
-}
-
-type SelfResponse struct {
-	Username string          `json:"username"`
-	FullName string          `json:"full_name"`
-	Address  string          `json:"address"`
-	Images   []ImageResponse `json:"images"`
-}
-
-type ImageResponse struct {
-	FileName string `json:"file_name"`
-	URL      string `json:"url"`
-}
-
-type FileInterface interface {
-	io.Reader
-}
-
-type UploadImageRequest struct {
-	Username string
-	Filename string
-	File     FileInterface
-}
-
-type UploadImageResponse struct {
-	URL string `json:"url"`
-}
-
-type ChangePasswordRequest struct {
-	Username        string `json:"username"`
-	CurrentPassword string `json:"current_password"`
-	NewPassword     string `json:"new_password" validate:"required,min=8,max=32"`
-	RepeatPassword  string `json:"repeat_password"`
-}
-
-type ChangePasswordResponse struct {
-	Success bool `json:"success"`
+type Comment struct {
+	Commenter Profile `json:"commenter" bson:"commenter"`
+	Comment   string  `json:"comment"   bson:"comment"`
 }

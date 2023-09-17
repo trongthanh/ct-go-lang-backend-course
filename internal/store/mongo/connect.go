@@ -24,7 +24,7 @@ func Connect(mongoURI string, dbName string) (*mongo.Database, error) {
 		return nil, err
 	}
 
-	db := client.Database("gocourse_db")
+	db := client.Database("gosocial_db")
 
 	return db, nil
 }

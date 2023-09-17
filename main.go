@@ -51,7 +51,9 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 	e.Validator = validator.New()
 
 	// Static
-	e.Static("/", "public")
+	e.Static("/*", "www/build")
+	// SPA
+	e.File("/auth", "www/build/index.html")
 
 	// Middleware
 	e.Use(middleware.Recover())
@@ -62,12 +64,12 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 
 	private.Use(auth.GetEchoJwtMiddleware(), auth.ExtraJwtMiddleware)
 
-	public.POST("/register", hdl.Register)
-	public.POST("/login", hdl.Login)
+	public.POST("/user/signup", hdl.Register)
+	public.POST("/user/login", hdl.Login)
 
 	private.GET("/self", hdl.Self)
-	private.POST("/upload-image", hdl.UploadImage)
-	private.POST("/change-password", hdl.ChangePassword)
+	// private.POST("/upload-image", hdl.UploadImage)
+	// private.POST("/change-password", hdl.ChangePassword)
 
 	return e
 }

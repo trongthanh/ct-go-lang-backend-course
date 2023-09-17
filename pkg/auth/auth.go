@@ -14,12 +14,12 @@ var mySigningKey = []byte("ct-secret-key")
 
 const jwtIssuer = "ct-backend-course"
 
-func GenerateToken(username string, expireDuration time.Duration) (string, error) {
+func GenerateToken(userid string, expireDuration time.Duration) (string, error) {
 
 	// Create the Claims
 	claims := &jwt.RegisteredClaims{
 		Issuer:    jwtIssuer,
-		Subject:   username,
+		Subject:   userid,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireDuration)),
 	}
 
@@ -56,7 +56,7 @@ func ExtraJwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		auth := c.Get("auth").(*jwt.Token)
 		claims := auth.Claims.(*jwt.RegisteredClaims)
-		username := claims.Subject
+		userid := claims.Subject
 		issuer := claims.Issuer
 
 		if issuer != jwtIssuer {
@@ -64,7 +64,7 @@ func ExtraJwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// store the username in the context for private handlers
-		c.Set("username", username)
+		c.Set("userid", userid)
 
 		return next(c)
 	}

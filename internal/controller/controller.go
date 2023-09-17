@@ -11,11 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type UserStore interface {
-	Save(info entity.UserInfo) error
-	Get(username string) (entity.UserInfo, error)
-}
-
 type ImageBucket interface {
 	SaveImage(ctx context.Context, name string, r io.Reader) (string, error)
 }
@@ -36,13 +31,20 @@ type Handler struct {
 	uc UseCase
 }
 
+func NewResponsePayload(status string, data interface{}) *entity.Response {
+	return &entity.Response{
+		Status: status,
+		Data:   data,
+	}
+}
+
 var ctx = context.TODO()
 
 func (h *Handler) Register(c echo.Context) error {
 	var req entity.RegisterRequest
 	if err := c.Bind(&req); err != nil {
 		// return fmt.Errorf("bind: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
 	if err := c.Validate(req); err != nil {
@@ -54,43 +56,43 @@ func (h *Handler) Register(c echo.Context) error {
 
 	if err != nil {
 		// return fmt.Errorf("uc.Register: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
 }
 
 func (h *Handler) Login(c echo.Context) error {
 
 	loginReq := new(entity.LoginRequest)
 	if err := c.Bind(loginReq); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
 	resp, err := h.uc.Login(ctx, loginReq)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
 }
 
 func (h *Handler) Self(c echo.Context) error {
 
-	username := c.Get("username").(string)
-	selfReq := &entity.SelfRequest{Username: username}
+	userid := c.Get("userid").(string)
+	selfReq := &entity.SelfRequest{Userid: userid}
 
 	resp, err := h.uc.Self(ctx, selfReq)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
 }
 
 func (h *Handler) UploadImage(c echo.Context) error {
-	// username from jwt
-	username := c.Get("username").(string)
+	// userid from jwt
+	userid := c.Get("userid").(string)
 	// Source
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
@@ -103,24 +105,24 @@ func (h *Handler) UploadImage(c echo.Context) error {
 		return err
 	}
 
-	uploadImageReq := &entity.UploadImageRequest{Username: username, Filename: fileHeader.Filename, File: file}
+	uploadImageReq := &entity.UploadImageRequest{Userid: userid, Filename: fileHeader.Filename, File: file}
 
 	resp, err := h.uc.UploadImage(ctx, uploadImageReq)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
 
 }
 
 func (h *Handler) ChangePassword(c echo.Context) error {
-	// username from jwt
-	username := c.Get("username").(string)
+	// userid from jwt
+	userid := c.Get("userid").(string)
 
 	changePasswordReq := new(entity.ChangePasswordRequest)
 	if err := c.Bind(changePasswordReq); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
 	// validate new password
@@ -128,14 +130,14 @@ func (h *Handler) ChangePassword(c echo.Context) error {
 		return err
 	}
 
-	changePasswordReq.Username = username
+	changePasswordReq.Userid = userid
 
 	resp, err := h.uc.ChangePassword(ctx, changePasswordReq)
 
 	fmt.Println("error", err)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
 }

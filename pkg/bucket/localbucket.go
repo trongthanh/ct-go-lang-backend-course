@@ -11,16 +11,16 @@ import (
 
 type LocalBucket struct {
 	mu   sync.Mutex
-	data map[string]entity.ImageInfo
+	data map[string]entity.Image
 }
 
 func New() *LocalBucket {
 	return &LocalBucket{
-		data: make(map[string]entity.ImageInfo),
+		data: make(map[string]entity.Image),
 	}
 }
 
-func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) (entity.ImageInfo, error) {
+func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) (entity.Image, error) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 
@@ -28,25 +28,25 @@ func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) 
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
-		return entity.ImageInfo{}, err
+		return entity.Image{}, err
 	}
 	defer dst.Close()
 
 	// Copy
 	if _, err = io.Copy(dst, r); err != nil {
-		return entity.ImageInfo{}, err
+		return entity.Image{}, err
 	}
 
 	// store metadata
-	imageInfo := entity.ImageInfo{
-		FileName: name,
-		Path:     localPath,
+	Image := entity.Image{
+		URL:  "http://localhost:8080/images/" + name,
+		Path: localPath,
 	}
-	lb.data[name] = imageInfo
+	lb.data[name] = Image
 
-	fmt.Println("Image saved to: " + imageInfo.Path)
+	fmt.Println("Image saved to: " + Image.Path)
 
-	return imageInfo, nil
+	return Image, nil
 }
 
 func getPublicFolder() string {

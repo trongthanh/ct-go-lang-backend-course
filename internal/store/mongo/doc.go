@@ -1,6 +1,7 @@
 package mongostore
 
 import (
+	"gosocial/internal/entity"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,5 +21,29 @@ func NewDoc() Doc {
 		Version:   1,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+	}
+}
+
+type UserDoc struct {
+	Doc         `bson:",inline"`
+	entity.User `bson:",inline"`
+}
+
+func NewUserDoc(user entity.User) *UserDoc {
+	return &UserDoc{
+		Doc:  NewDoc(),
+		User: user,
+	}
+}
+
+type ProfileDoc struct {
+	Doc            `bson:",inline"`
+	entity.Profile `bson:",inline"`
+}
+
+func NewProfileDoc(profile entity.Profile) *ProfileDoc {
+	return &ProfileDoc{
+		Doc:     NewDoc(),
+		Profile: profile,
 	}
 }

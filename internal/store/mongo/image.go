@@ -2,7 +2,6 @@ package mongostore
 
 import (
 	"context"
-	"fmt"
 	"gosocial/internal/entity"
 	"time"
 
@@ -24,10 +23,7 @@ type imageStore struct {
 	timeout time.Duration
 }
 
-func (c *imageStore) Save(info entity.ImageInfo) error {
-	if len(info.Username) == 0 {
-		return fmt.Errorf("No user associated with this image")
-	}
+func (c *imageStore) Save(info entity.Image) error {
 
 	doc := NewImageDocument(info)
 
@@ -42,7 +38,7 @@ func (c *imageStore) Save(info entity.ImageInfo) error {
 	return nil
 }
 
-func (c *imageStore) Get(username string) ([]entity.ImageInfo, error) {
+func (c *imageStore) Get(username string) ([]entity.Image, error) {
 
 	filter := bson.D{{Key: "user", Value: username}}
 
@@ -55,18 +51,16 @@ func (c *imageStore) Get(username string) ([]entity.ImageInfo, error) {
 	}
 	defer cursor.Close(ctx)
 
-	var images []entity.ImageInfo
+	var images []entity.Image
 
 	for cursor.Next(ctx) {
 		var imgDoc ImageDoc
 		if err := cursor.Decode(&imgDoc); err != nil {
 			return nil, err
 		}
-		images = append(images, entity.ImageInfo{
-			Username: imgDoc.User,
-			FileName: imgDoc.Name,
-			Path:     imgDoc.Path,
-			URL:      imgDoc.URL,
+		images = append(images, entity.Image{
+			Path: imgDoc.Path,
+			URL:  imgDoc.URL,
 		})
 	}
 
@@ -79,17 +73,13 @@ func (c *imageStore) Get(username string) ([]entity.ImageInfo, error) {
 
 type ImageDoc struct {
 	Doc  `bson:",inline"`
-	User string `json:"user" bson:"user"`
-	Name string `json:"name" bson:"name"`
 	Path string `json:"path" bson:"path"`
 	URL  string `json:"url" bson:"url"`
 }
 
-func NewImageDocument(info entity.ImageInfo) *ImageDoc {
+func NewImageDocument(info entity.Image) *ImageDoc {
 	return &ImageDoc{
 		Doc:  NewDoc(),
-		User: info.Username,
-		Name: info.FileName,
 		Path: info.Path,
 		URL:  info.URL,
 	}

@@ -9,25 +9,28 @@ import (
 
 	"gosocial/config"
 	"gosocial/internal/entity"
+	mongostore "gosocial/internal/store/mongo"
 	"gosocial/pkg/auth"
 	"gosocial/pkg/hashpass"
 
 	"github.com/labstack/gommon/log"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserStore interface {
-	Save(info entity.UserInfo) error
-	Get(username string) (entity.UserInfo, error)
-	Update(info entity.UserInfo) error
+	Save(info entity.User) (primitive.ObjectID, error)
+	Get(id string) (mongostore.UserDoc, error)
+	GetByEmail(email string) (mongostore.UserDoc, error)
+	Update(id string, info entity.User) error
 }
 
 type ImageStore interface {
-	Save(info entity.ImageInfo) error
-	Get(username string) ([]entity.ImageInfo, error)
+	Save(info entity.Image) error
+	Get(username string) ([]entity.Image, error)
 }
 
 type ImageBucket interface {
-	SaveImage(ctx context.Context, name string, r io.Reader) (entity.ImageInfo, error)
+	SaveImage(ctx context.Context, name string, r io.Reader) (entity.Image, error)
 }
 
 func New(config config.Config, userStore UserStore, imageStore ImageStore, imageBucket ImageBucket) *ucImplement {
@@ -47,28 +50,28 @@ type ucImplement struct {
 }
 
 func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
-	// optional check username exists if unique index is not defined
-	// if user, err := uc.userStore.Get(req.Username); err == nil && user.Username == req.Username {
-	// 	return nil, fmt.Errorf("username %s already exists", req.Username)
-	// }
 
-	if err := uc.userStore.Save(entity.UserInfo{
-		Username:       req.Username,
+	userId, err := uc.userStore.Save(entity.User{
+		Email:          req.Email,
 		HashedPassword: hashpass.HashPassword(req.Password),
-		FullName:       req.FullName,
-		Address:        req.Address,
-	}); err != nil {
+		Active:         true,
+	})
+	if err != nil {
 		log.Error(err)
 		// fmt.Println(err)
 		return nil, err //fmt.Errorf("save user failed")
 	}
 
-	return &entity.RegisterResponse{Username: req.Username}, nil
+	// TODO: create Profile with userId
+
+	return &entity.RegisterResponse{
+		Id: userId.Hex(),
+	}, nil
 }
 
 func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*entity.LoginResponse, error) {
 
-	user, err := uc.userStore.Get(req.Username)
+	user, err := uc.userStore.GetByEmail(req.Email)
 	if err != nil {
 		return nil, ErrInvalidUserOrPassword
 	}
@@ -81,7 +84,7 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 		return nil, ErrInvalidUserOrPassword
 	}
 
-	token, err := auth.GenerateToken(user.Username, 24*time.Hour)
+	token, err := auth.GenerateToken(user.Email, 24*time.Hour)
 
 	if err != nil {
 		return nil, ErrGenerateToken
@@ -92,27 +95,27 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 
 func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error) {
 
-	user, err := uc.userStore.Get(req.Username)
-	images, _ := uc.imageStore.Get(req.Username)
+	user, err := uc.userStore.Get(req.Userid)
+	// images, _ := uc.imageStore.Get(req.Username)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// drop path and internal data
-	var imgRes []entity.ImageResponse
-	for _, img := range images {
-		imgRes = append(imgRes, entity.ImageResponse{
-			FileName: img.FileName,
-			URL:      uc.GetFullURL(img.URL),
-		})
-	}
+	// var imgRes []entity.ImageResponse
+	// for _, img := range images {
+	// 	imgRes = append(imgRes, entity.ImageResponse{
+	// 		FileName: img.FileName,
+	// 		URL:      uc.GetFullURL(img.URL),
+	// 	})
+	// }
 
 	return &entity.SelfResponse{
-		Username: user.Username,
-		FullName: user.FullName,
-		Address:  user.Address,
-		Images:   imgRes,
+		Email: user.Email,
+		// FullName: user.FullName,
+		// Address:  user.Address,
+		// Images:   imgRes,
 	}, nil
 }
 
@@ -123,8 +126,7 @@ func (uc *ucImplement) UploadImage(ctx context.Context, req *entity.UploadImageR
 	if err != nil {
 		return nil, err
 	}
-	imgInfo.Username = req.Username
-	imgInfo.URL = "/images/" + imgInfo.FileName
+	imgInfo.URL = "/images/" + imgInfo.Filename
 	// store image info to db and associate with user
 	uc.imageStore.Save(imgInfo)
 
@@ -137,7 +139,7 @@ func (uc *ucImplement) GetFullURL(url string) string {
 }
 
 func (uc *ucImplement) ChangePassword(ctx context.Context, req *entity.ChangePasswordRequest) (*entity.ChangePasswordResponse, error) {
-	user, err := uc.userStore.Get(req.Username)
+	user, err := uc.userStore.Get(req.Userid)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +164,11 @@ func (uc *ucImplement) ChangePassword(ctx context.Context, req *entity.ChangePas
 
 	// fmt.Println("save user", user)
 
-	if err := uc.userStore.Update(user); err != nil {
+	if err := uc.userStore.Update(req.Userid, entity.User{
+		Email:          user.Email,
+		HashedPassword: user.HashedPassword,
+		Active:         user.Active,
+	}); err != nil {
 		return nil, err
 	}
 
