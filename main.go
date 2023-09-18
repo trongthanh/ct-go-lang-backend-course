@@ -22,8 +22,6 @@ func main() {
 		Port:             "8090",
 		MongoURI:         "mongodb://localhost:27017",
 		MongoDB:          "gocourse_db",
-		MongoCollUser:    "users",
-		MongoCollImage:   "images",
 		GoogleCredFile:   "",
 		GoogleBucketName: "",
 	}
@@ -34,10 +32,11 @@ func main() {
 		fmt.Println("Error connecting to MongoDB:", mongoErr)
 		log.Error(mongoErr)
 	}
-	userStore := mongostore.NewUserStore(db, config.MongoCollUser)
-	imageStore := mongostore.NewImageStore(db, config.MongoCollImage)
+	userStore := mongostore.NewUserStore(db, "users")
+	profileStore := mongostore.NewProfileStore(db, "profiles")
+	imageStore := mongostore.NewImageStore(db, "images")
 	imgBucket := imagebucket.New()
-	uc := usecase.New(config, userStore, imageStore, imgBucket)
+	uc := usecase.New(config, userStore, profileStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 
 	srv := createServer(hdl)

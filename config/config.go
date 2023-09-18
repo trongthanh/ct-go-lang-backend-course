@@ -17,8 +17,6 @@ type Config struct {
 	Port             string
 	MongoURI         string
 	MongoDB          string
-	MongoCollImage   string
-	MongoCollUser    string
 	GoogleCredFile   string
 	GoogleBucketName string
 }
@@ -41,8 +39,6 @@ func LoadConfig() Config {
 		Port:             getConfig("PORT"),
 		MongoURI:         getConfig("MONGO_URI"),
 		MongoDB:          getConfig("MONGO_DB"),
-		MongoCollImage:   getConfig("MONGO_COLL_IMAGE"),
-		MongoCollUser:    getConfig("MONGO_COLL_USER"),
 		GoogleCredFile:   getConfig("GOOGLE_APPLICATION_CREDENTIALS"),
 		GoogleBucketName: getConfig("GOOGLE_APPLICATION_BUCKET"),
 	}

@@ -9,7 +9,7 @@ type User struct {
 }
 
 type Profile struct {
-	UserId       string    `json:"user_id"       bson:"user_id"`
+	Userid       string    `json:"userid"        bson:"userid"`
 	Bio          string    `json:"bio"           bson:"bio"`
 	AccountType  string    `json:"account_type"  bson:"account_type"`
 	Website      string    `json:"website"       bson:"website"`
