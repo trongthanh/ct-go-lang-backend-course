@@ -34,7 +34,7 @@ export function* registerAccount(payload) {
 		console.log(res?.data, 33);
 		if (res?.data?.status === 'success') {
 			const id = getUniqueId();
-			yield put(setAlert(id, 'Registred.Please Login!', true));
+			yield put(setAlert(id, 'Registered. Please Login!', true));
 		}
 		yield put(registerSuccess());
 	} catch (e) {

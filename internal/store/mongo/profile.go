@@ -2,6 +2,7 @@ package mongostore
 
 import (
 	"context"
+	"fmt"
 	"gosocial/internal/entity"
 	"log"
 	"time"
@@ -47,6 +48,16 @@ func (u *profileStore) Save(info entity.Profile) (primitive.ObjectID, error) {
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), u.timeout)
 	defer cancelFn()
+
+	// generate default username to ensure uniqueness
+	if profileDoc.Username == "" {
+		count, _ := u.client.CountDocuments(ctx, bson.D{})
+		if count == 0 {
+			profileDoc.Username = "user_00001"
+		} else {
+			profileDoc.Username = fmt.Sprintf("user_%04d", count+1)
+		}
+	}
 
 	result, err := u.client.InsertOne(ctx, profileDoc)
 	if err != nil {

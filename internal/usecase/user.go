@@ -68,7 +68,7 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 		return nil, ErrInvalidUserOrPassword
 	}
 
-	token, err := auth.GenerateToken(user.Email, 24*time.Hour)
+	token, err := auth.GenerateToken(user.Id.Hex(), 24*time.Hour)
 
 	if err != nil {
 		return nil, ErrGenerateToken

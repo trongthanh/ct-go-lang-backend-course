@@ -28,7 +28,7 @@ const GroupModalContainer = ({
   const { input, loading, users, defaultUsers } = searchUser;
   console.log(defaultUsers);
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}profile/`).then((res) =>
+    axios.get(`${process.env.REACT_APP_API}/profile/`).then((res) =>
       setSearchUser((user) => ({
         ...user,
         defaultUsers: res.data.data.profiles,
@@ -55,7 +55,7 @@ const GroupModalContainer = ({
         loading: true,
       }));
       axios
-        .get(`${process.env.REACT_APP_API}profile/search/`, {
+        .get(`${process.env.REACT_APP_API}/profile/search/`, {
           cancelToken: new CancelToken((c) => {
             cancel = c;
           }),
@@ -133,7 +133,4 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = (dispatch) => ({
   createGroupStart: (userId, id) => dispatch(createGroupStart(userId, id)),
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GroupModalContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupModalContainer);

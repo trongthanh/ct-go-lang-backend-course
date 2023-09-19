@@ -16,10 +16,10 @@ echo "--------------------------"
 echo "Login /login"
 sleep 1
 #Make the POST request and store the response in a variable
-response=$(curl -i -X "POST" "http://localhost:8090/api/public/login" \
+response=$(curl -i -X "POST" "http://localhost:8090/api/public/user/login" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
-	"username": "thanh",
+	"email": "thanh@chotot.vn",
 	"password": "12345678"
 }')
 
