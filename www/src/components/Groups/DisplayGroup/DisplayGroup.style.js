@@ -29,7 +29,7 @@ export const CreateButton = styled.button`
   background: transparent;
   transition: all 300ms ease-in-out;
   cursor: pointer;
-  font-family: 'Alegreya Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: 300;
   &:hover {
     background: #212529;

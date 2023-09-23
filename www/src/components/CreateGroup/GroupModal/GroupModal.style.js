@@ -11,7 +11,7 @@ export const Input = styled.input`
 
   &::placeholder {
     color: #666;
-    font-family: 'Open Sans Condensed', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 1.4rem;
   }
 `;

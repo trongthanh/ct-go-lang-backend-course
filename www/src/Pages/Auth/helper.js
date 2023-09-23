@@ -1,5 +1,5 @@
 const emailValidation = (email) => email.includes('@');
-const passwordValidation = (password) => password.length >= 6;
+const passwordValidation = (password) => password.length >= 8;
 const checkPasswordMatch = (password, confirmPassword) =>
   // eslint-disable-next-line
   password === confirmPassword;
@@ -13,7 +13,7 @@ const loginValidation = (email, password) => {
     return { message, valid };
   }
   if (!passwordValidation(password)) {
-    message = 'Password should be minimum of 6 characters long';
+    message = 'Password should be minimum of 8 characters long';
     valid = false;
     return { message, valid };
   }

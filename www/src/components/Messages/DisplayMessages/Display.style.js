@@ -57,7 +57,6 @@ export const Chat = styled.span`
   display: block;
   font-size: 1.7rem;
   color: ${(props) => props.theme.color};
-  /* font-family: 'NimbusSanTW01Con'; */
   font-weight: 300;
   word-wrap: break-word;
   // text-transform: capitalize;

@@ -16,7 +16,7 @@ const Button = styled.button`
   color: inherit;
   border-radius: 5px;
   cursor: pointer;
-  font-family: 'Open Sans Condensed', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.8rem;
   text-transform: uppercase;
 `;

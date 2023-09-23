@@ -41,7 +41,7 @@ export const Input = styled.input`
 `;
 
 export const Label = styled.label`
-  font-family: 'Open Sans Condensed', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.5rem;
   color: ${(props) => props.theme.text};
 `;

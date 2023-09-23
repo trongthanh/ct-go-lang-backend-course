@@ -15,7 +15,7 @@ export const SharedInput = css`
   }
   &::placeholder {
     text-transform: capitalize;
-    font-family: 'Open Sans Condensed';
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-weight: 400;
     font-size: 1.4rem;
     color: #212529;

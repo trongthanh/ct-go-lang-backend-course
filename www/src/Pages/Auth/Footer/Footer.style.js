@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 
 export const FooterText = styled.p`
-  font-family: 'Nimbus Sans', sans-serif;
   font-size: 1.43rem;
-  font-weight: 300;
+  font-weight: 400;
   color: ${(props) => props.theme.textLight};
   background: none;
   outline: none;
