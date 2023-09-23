@@ -42,7 +42,7 @@ type profileStore struct {
 	timeout time.Duration
 }
 
-func (u *profileStore) Save(info entity.Profile) (primitive.ObjectID, error) {
+func (u *profileStore) Save(info entity.Profile) (ProfileDoc, error) {
 
 	profileDoc := NewProfileDoc(info)
 
@@ -61,10 +61,12 @@ func (u *profileStore) Save(info entity.Profile) (primitive.ObjectID, error) {
 
 	result, err := u.client.InsertOne(ctx, profileDoc)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return *profileDoc, err
 	}
+	// return profileDoc with new assigned ObjectID
+	profileDoc.Id = result.InsertedID.(primitive.ObjectID)
 
-	return result.InsertedID.(primitive.ObjectID), nil
+	return *profileDoc, nil
 }
 
 func (u *profileStore) Get(userid string) (ProfileDoc, error) {
@@ -74,9 +76,10 @@ func (u *profileStore) Get(userid string) (ProfileDoc, error) {
 	var profileDoc ProfileDoc
 	err := u.client.FindOne(context.Background(), filter).Decode(&profileDoc)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return profileDoc, nil
-		}
+		// if err == mongo.ErrNoDocuments {
+		// 	return profileDoc, nil
+		// }
+		// no document found consider error
 		return profileDoc, err
 	}
 

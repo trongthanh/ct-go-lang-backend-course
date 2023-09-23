@@ -47,3 +47,7 @@ func NewProfileDoc(profile entity.Profile) *ProfileDoc {
 		Profile: profile,
 	}
 }
+
+func (pd *ProfileDoc) ToProfile() entity.Profile {
+	return pd.Profile
+}

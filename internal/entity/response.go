@@ -5,20 +5,20 @@ type Response struct {
 	Data   interface{} `json:"data"`
 }
 
+// Response structs below are data field in Response base
 type RegisterResponse struct {
 	Id string `json:"id"`
 }
 
-// Remove below once migrated
 type LoginResponse struct {
 	Token string `json:"token"`
+	// TODO: check front end if profile is needed
+	Profile Profile `json:"profile"`
 }
 
+// Below not migrated
 type SelfResponse struct {
-	Email    string          `json:"email"`
-	FullName string          `json:"full_name"`
-	Address  string          `json:"address"`
-	Images   []ImageResponse `json:"images"`
+	Profile Profile `json:"profile"`
 }
 
 type ImageResponse struct {

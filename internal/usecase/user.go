@@ -12,25 +12,24 @@ import (
 	"gosocial/pkg/hashpass"
 
 	"github.com/labstack/gommon/log"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserStore interface {
-	Save(info entity.User) (primitive.ObjectID, error)
+	Save(info entity.User) (mongostore.UserDoc, error)
 	Get(id string) (mongostore.UserDoc, error)
 	GetByEmail(email string) (mongostore.UserDoc, error)
 	Update(id string, info entity.User) error
 }
 
 type ProfileStore interface {
-	Save(info entity.Profile) (primitive.ObjectID, error)
+	Save(info entity.Profile) (mongostore.ProfileDoc, error)
 	Get(userid string) (mongostore.ProfileDoc, error)
 	Update(userid string, profile entity.Profile) error
 }
 
 func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest) (*entity.RegisterResponse, error) {
 
-	userid, err := uc.userStore.Save(entity.User{
+	user, err := uc.userStore.Save(entity.User{
 		Email:          req.Email,
 		HashedPassword: hashpass.HashPassword(req.Password),
 		Active:         true,
@@ -41,22 +40,15 @@ func (uc *ucImplement) Register(ctx context.Context, req *entity.RegisterRequest
 		return nil, err //fmt.Errorf("save user failed")
 	}
 
-	if _, err := uc.profileStore.Save(entity.Profile{
-		Userid: userid.Hex(),
-	}); err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
 	return &entity.RegisterResponse{
-		Id: userid.Hex(),
+		Id: user.Id.Hex(),
 	}, nil
 }
 
 func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*entity.LoginResponse, error) {
 
-	user, err := uc.userStore.GetByEmail(req.Email)
-	if err != nil {
+	user, userErr := uc.userStore.GetByEmail(req.Email)
+	if userErr != nil {
 		return nil, ErrInvalidUserOrPassword
 	}
 
@@ -68,38 +60,42 @@ func (uc *ucImplement) Login(ctx context.Context, req *entity.LoginRequest) (*en
 		return nil, ErrInvalidUserOrPassword
 	}
 
-	token, err := auth.GenerateToken(user.Id.Hex(), 24*time.Hour)
+	token, tokenErr := auth.GenerateToken(user.Id.Hex(), 24*time.Hour)
 
-	if err != nil {
+	if tokenErr != nil {
 		return nil, ErrGenerateToken
 	}
 
-	return &entity.LoginResponse{Token: token}, nil
+	profileDoc, profileErr := uc.profileStore.Get(user.Id.Hex())
+	var profile entity.Profile
+	// if this is the first time login, create profileDoc
+	if profileErr != nil {
+		log.Info("First login, create profile for user")
+		newProfile, newProfileErr := uc.profileStore.Save(entity.Profile{
+			Userid: user.Id.Hex(),
+		})
+		if newProfileErr != nil {
+			log.Error(newProfileErr)
+			return nil, newProfileErr
+		}
+		profile = newProfile.ToProfile()
+	} else {
+		profile = profileDoc.ToProfile()
+	}
+
+	return &entity.LoginResponse{Token: token, Profile: profile}, nil
 }
 
 func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*entity.SelfResponse, error) {
 
-	user, err := uc.userStore.Get(req.Userid)
-	// images, _ := uc.imageStore.Get(req.Username)
+	profile, profileErr := uc.profileStore.Get(req.Userid)
 
-	if err != nil {
-		return nil, err
+	if profileErr != nil {
+		return nil, profileErr
 	}
 
-	// drop path and internal data
-	// var imgRes []entity.ImageResponse
-	// for _, img := range images {
-	// 	imgRes = append(imgRes, entity.ImageResponse{
-	// 		FileName: img.FileName,
-	// 		URL:      uc.GetFullURL(img.URL),
-	// 	})
-	// }
-
 	return &entity.SelfResponse{
-		Email: user.Email,
-		// FullName: user.FullName,
-		// Address:  user.Address,
-		// Images:   imgRes,
+		Profile: profile.ToProfile(),
 	}, nil
 }
 

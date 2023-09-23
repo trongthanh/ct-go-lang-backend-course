@@ -42,7 +42,7 @@ type userStore struct {
 	timeout time.Duration
 }
 
-func (u *userStore) Save(info entity.User) (primitive.ObjectID, error) {
+func (u *userStore) Save(info entity.User) (UserDoc, error) {
 
 	userDoc := NewUserDoc(info)
 
@@ -51,11 +51,11 @@ func (u *userStore) Save(info entity.User) (primitive.ObjectID, error) {
 
 	result, err := u.client.InsertOne(ctx, userDoc)
 	if err != nil {
-		return primitive.ObjectID{}, err
+		return *userDoc, err
 	}
 
-	fmt.Println("UserStore.Save", result)
-	return result.InsertedID.(primitive.ObjectID), nil
+	userDoc.Id = result.InsertedID.(primitive.ObjectID)
+	return *userDoc, nil
 }
 
 func (u *userStore) Get(id string) (UserDoc, error) {

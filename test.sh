@@ -31,10 +31,10 @@ echo "Recieved token: $TOKEN"
 
 echo "--------------------------"
 
-echo "Get user info /self"
+echo "Get own user profile /me"
 sleep 1
 ## Self
-curl -i "http://localhost:8090/api/private/self" \
+curl -i "http://localhost:8090/api/private/user/me" \
      -H "Authorization: Bearer $TOKEN"
 
 echo "--------------------------"
