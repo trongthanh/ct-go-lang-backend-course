@@ -64,7 +64,7 @@ func (u *profileStore) Save(info entity.Profile) (ProfileDoc, error) {
 		return *profileDoc, err
 	}
 	// return profileDoc with new assigned ObjectID
-	profileDoc.Id = result.InsertedID.(primitive.ObjectID)
+	profileDoc.DocId = result.InsertedID.(primitive.ObjectID)
 
 	return *profileDoc, nil
 }
@@ -107,4 +107,28 @@ func (u *profileStore) Update(userid string, profile entity.Profile) error {
 	}
 
 	return nil
+}
+
+func (u *profileStore) GetMany() ([]ProfileDoc, error) {
+
+	// Pagination parameters
+	pageNumber := 1 // Current page number (start from 1)
+	pageSize := 10  // Number of documents per page
+	skip := (pageNumber - 1) * pageSize
+
+	//
+	ctx, cancelFn := context.WithTimeout(context.Background(), u.timeout)
+	defer cancelFn()
+	findOptions := options.Find().SetSkip(int64(skip)).SetLimit(int64(pageSize))
+	cursor, err := u.client.Find(ctx, bson.M{}, findOptions)
+	if err != nil {
+		return []ProfileDoc{}, err
+	}
+
+	var profileDocs []ProfileDoc
+	if err = cursor.All(context.Background(), &profileDocs); err != nil {
+		return []ProfileDoc{}, err
+	}
+
+	return profileDocs, nil
 }

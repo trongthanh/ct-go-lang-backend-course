@@ -54,7 +54,7 @@ func (u *userStore) Save(info entity.User) (UserDoc, error) {
 		return *userDoc, err
 	}
 
-	userDoc.Id = result.InsertedID.(primitive.ObjectID)
+	userDoc.DocId = result.InsertedID.(primitive.ObjectID)
 	return *userDoc, nil
 }
 

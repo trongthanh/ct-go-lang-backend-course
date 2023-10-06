@@ -8,7 +8,7 @@ import (
 )
 
 type Doc struct {
-	Id        primitive.ObjectID `bson:"_id"`
+	DocId     primitive.ObjectID `bson:"_id"`
 	Version   int64              `bson:"version"`
 	CreatedAt time.Time          `bson:"created_at"`
 	UpdatedAt time.Time          `bson:"updated_at"`
@@ -17,7 +17,7 @@ type Doc struct {
 func NewDoc() Doc {
 	docId := primitive.NewObjectID()
 	return Doc{
-		Id:        docId,
+		DocId:     docId,
 		Version:   1,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -50,4 +50,21 @@ func NewProfileDoc(profile entity.Profile) *ProfileDoc {
 
 func (pd *ProfileDoc) ToProfile() entity.Profile {
 	return pd.Profile
+}
+
+type PostDoc struct {
+	Doc         `bson:",inline"`
+	entity.Post `bson:",inline"`
+}
+
+func NewPostDoc(post entity.Post) *PostDoc {
+	return &PostDoc{
+		Doc:  NewDoc(),
+		Post: post,
+	}
+}
+
+func (pd *PostDoc) ToPost() entity.Post {
+	pd.Post.Id = pd.DocId.Hex()
+	return pd.Post
 }

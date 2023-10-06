@@ -6,7 +6,6 @@ type RegisterRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8,max=32"`
 }
-
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -16,19 +15,39 @@ type SelfRequest struct {
 	Userid string `json:"userid"`
 }
 
-type FileInterface interface {
-	io.Reader
+type ProfilesRequest struct {
+	// empty for now
 }
 
-type UploadImageRequest struct {
-	Userid   string
+type PostsRequest struct {
+	// empty
+}
+
+type PostsByUserRequest struct {
+	Userid string `json:"userid"`
+}
+
+type CreatePostRequest struct {
+	Post     Post
 	Filename string
-	File     FileInterface
+	File     io.Reader
 }
 
-type ChangePasswordRequest struct {
-	Userid          string `json:"userid"`
-	CurrentPassword string `json:"current_password"`
-	NewPassword     string `json:"new_password" validate:"required,min=8,max=32"`
-	RepeatPassword  string `json:"repeat_password"`
+type DeletePostRequest struct {
+	Postid string `json:"postid"`
 }
+
+type LikePostRequest struct {
+	Postid string `json:"postid"`
+	Userid string `json:"userid"`
+}
+
+// type FileInterface interface {
+// 	io.Reader
+// }
+//
+// type UploadImageRequest struct {
+// 	Userid   string
+// 	Filename string
+// 	File     FileInterface
+// }

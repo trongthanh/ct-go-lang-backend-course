@@ -26,6 +26,8 @@ func main() {
 		GoogleBucketName: "",
 	}
 
+	log.EnableColor()
+
 	fmt.Println("Connect to MongoDB:", config.MongoURI)
 	db, mongoErr := mongostore.Connect(config.MongoURI, config.MongoDB)
 	if mongoErr != nil {
@@ -34,9 +36,10 @@ func main() {
 	}
 	userStore := mongostore.NewUserStore(db, "users")
 	profileStore := mongostore.NewProfileStore(db, "profiles")
+	postStore := mongostore.NewPostStore(db, "posts")
 	imageStore := mongostore.NewImageStore(db, "images")
 	imgBucket := imagebucket.New()
-	uc := usecase.New(config, userStore, profileStore, imageStore, imgBucket)
+	uc := usecase.New(config, userStore, profileStore, postStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 
 	srv := createServer(hdl)
@@ -48,7 +51,7 @@ func main() {
 func createServer(hdl *controller.Handler) *echo.Echo {
 	e := echo.New()
 	e.Validator = validator.New()
-
+	e.Use(middleware.CORS())
 	// Static
 	e.Static("/*", "www/build")
 	// SPA
@@ -56,7 +59,9 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 
 	// Middleware
 	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `${time_rfc3339} ${method} ${status} ${uri}, error=${error} \n`,
+	}))
 
 	public := e.Group("/api/public")
 	private := e.Group("/api/private")
@@ -67,8 +72,15 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 	public.POST("/user/login", hdl.Login)
 
 	private.GET("/user/me", hdl.Self)
-	// private.POST("/upload-image", hdl.UploadImage)
-	// private.POST("/change-password", hdl.ChangePassword)
 
+	// profiles
+	public.GET("/profiles", hdl.GetProfiles)
+
+	// posts
+	private.GET("/post/all", hdl.GetPosts)
+	private.GET("/post/:userid", hdl.GetPostsByUser)
+	private.POST("/post/create", hdl.CreatePost)
+	private.DELETE("/post/delete/:postid", hdl.DeletePost)
+	private.POST("/post/like/:postid", hdl.LikePost)
 	return e
 }

@@ -1,8 +1,11 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
+	Id             string `json: "id"             bson:"id,omitempty"`
 	Email          string `json:"email"           bson:"email" unique:"true"`
 	HashedPassword string `json:"hashed_password" bson:"hashed_password"`
 	Active         bool   `json:"active"          bson:"active"`
@@ -14,7 +17,7 @@ type Profile struct {
 	AccountType  string    `json:"account_type"  bson:"account_type"`
 	Website      string    `json:"website"       bson:"website"`
 	Name         string    `json:"name"          bson:"name"`
-	Username     string    `json:"username"      bson:"username"`
+	Username     string    `json:"username"      bson:"username" unique:"true"`
 	Gender       string    `json:"gender"        bson:"gender"`
 	Birthday     time.Time `json:"birthday"      bson:"birthday"`
 	CloseFriends []string  `json:"close_friends" bson:"close_friends"`
@@ -31,16 +34,22 @@ type Image struct {
 }
 
 type Post struct {
-	Profile  Profile   `json:"profile"  bson:"profile"`
+	Id       string    `json: "id"      bson:"id,omitempty"`
+	Userid   string    `json:"userid"   bson:"userid"`
 	Caption  string    `json:"caption"  bson:"caption"`
 	Location string    `json:"location" bson:"location"`
 	HashTags []string  `json:"hashtags" bson:"hashtags"`
-	Likes    []Profile `json:"likes"    bson:"likes"`
-	Image    []Image   `json:"image"    bson:"image"`
+	Likes    []string  `json:"likes"    bson:"likes"`
+	Image    Image     `json:"image"    bson:"image"`
 	Comment  []Comment `json:"comment"  bson:"comment"`
 }
 
+type PostRes struct {
+	Post
+	Profile Profile `json:"profile"  bson:"profile"`
+}
+
 type Comment struct {
-	Commenter Profile `json:"commenter" bson:"commenter"`
-	Comment   string  `json:"comment"   bson:"comment"`
+	Userid  string `json:"userid" bson:"userid"`
+	Comment string `json:"comment"   bson:"comment"`
 }

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"gosocial/internal/entity"
@@ -52,32 +51,6 @@ func (h *Handler) Self(c echo.Context) error {
 	selfReq := &entity.SelfRequest{Userid: userid}
 
 	resp, err := h.uc.Self(ctx, selfReq)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, NewResponsePayload("success", resp))
-}
-
-func (h *Handler) ChangePassword(c echo.Context) error {
-	// userid from jwt
-	userid := c.Get("userid").(string)
-
-	changePasswordReq := new(entity.ChangePasswordRequest)
-	if err := c.Bind(changePasswordReq); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
-	}
-
-	// validate new password
-	if err := c.Validate(changePasswordReq); err != nil {
-		return err
-	}
-
-	changePasswordReq.Userid = userid
-
-	resp, err := h.uc.ChangePassword(ctx, changePasswordReq)
-
-	fmt.Println("error", err)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
 	}

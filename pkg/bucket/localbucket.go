@@ -24,7 +24,7 @@ func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) 
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 
-	localPath := getPublicFolder() + "/images/" + name
+	localPath := getPublicFolder() + "/" + name
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
@@ -39,8 +39,9 @@ func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) 
 
 	// store metadata
 	Image := entity.Image{
-		URL:  "http://localhost:8080/images/" + name,
-		Path: localPath,
+		URL:      "http://localhost:8090/" + name,
+		Filename: name,
+		Path:     localPath,
 	}
 	lb.data[name] = Image
 
@@ -59,5 +60,5 @@ func getPublicFolder() string {
 	fmt.Println("Current working directory: " + wd)
 
 	// Append the public folder
-	return wd + "/public"
+	return wd + "/www/public"
 }

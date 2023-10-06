@@ -16,20 +16,26 @@ type LoginResponse struct {
 	Profile Profile `json:"profile"`
 }
 
-// Below not migrated
-type SelfResponse struct {
+type ProfileResponse struct {
 	Profile Profile `json:"profile"`
 }
 
-type ImageResponse struct {
-	FileName string `json:"file_name"`
-	URL      string `json:"url"`
+type ProfilesResponse struct {
+	Profiles []Profile `json:"profiles"`
 }
 
-type UploadImageResponse struct {
-	URL string `json:"url"`
+type PostsResponse struct {
+	Posts []PostRes `json:"posts"`
 }
 
-type ChangePasswordResponse struct {
-	Success bool `json:"success"`
+type CreatePostResponse struct {
+	Postid string `json:"postid"`
+}
+
+type LikePostResponse struct {
+	LikesTotal int `json:"likes_total"`
+}
+
+type DeletePostResponse struct {
+	Postid string `json:"postid"`
 }
