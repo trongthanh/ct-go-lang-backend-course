@@ -30,12 +30,13 @@ const userReducer = (state = initialState, action) => {
     case userActionTypes.AUTH_ERROR:
     case userActionTypes.SIGN_OUT_SUCCESS:
     case userActionTypes.SIGN_OUT_FAILURE:
-      localStorage.removeItem('token');
+      // TODO: uncomment this line
+      // localStorage.removeItem('token');
       return {
         ...state,
         loading: false,
         success: false,
-        isAuthenticated: false,
+        // isAuthenticated: false,
         user: null,
         appLoading: false,
       };
