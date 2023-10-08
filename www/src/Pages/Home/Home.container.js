@@ -10,11 +10,13 @@ import { getIsCached } from '../../helpers/hooks/useLocalStorage';
 
 const HomeContainer = ({ userId, getPostStart: getPost }) => {
   const { socket } = useContext(SocketContext);
-  console.log(11, socket);
+  console.log('socket', socket);
+  console.log('userId', userId);
   useEffect(() => {
     if (userId) {
-      socket.emit('authenticated', userId);
-      if (!getIsCached()?.posts) getPost();
+      // socket.emit('authenticated', userId);
+      // if (!getIsCached()?.posts) getPost();
+      getPost();
     }
   }, [socket, userId, getPost]);
   return <Home />;

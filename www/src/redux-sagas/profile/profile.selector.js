@@ -26,37 +26,19 @@ export const selectProfileId = createSelector(
 export const selectUserId = createSelector(
   [selectProfile],
   // eslint-disable-next-line
-  (profile) => profile.userProfile?.user
+  (profile) => profile.userProfile?.userid
 );
 
-export const selectIsLoading = createSelector(
-  [selectProfile],
-  (profile) => profile.loading
-);
+export const selectIsLoading = createSelector([selectProfile], (profile) => profile.loading);
 
-export const selectPostLoading = createSelector(
-  [selectProfile],
-  (profile) => profile.postLoading
-);
+export const selectPostLoading = createSelector([selectProfile], (profile) => profile.postLoading);
 
-export const selectPosts = createSelector(
-  [selectProfile],
-  (profile) => profile.posts
-);
+export const selectPosts = createSelector([selectProfile], (profile) => profile.posts);
 
-export const selectIsModalVisible = createSelector(
-  [selectProfile],
-  (profile) => profile.modal
-);
+export const selectIsModalVisible = createSelector([selectProfile], (profile) => profile.modal);
 
 export const selectUserProfile = createSelector([selectProfile], (profile) => {
-  const {
-    name = '',
-    photo = '',
-    user = '',
-    _id = '',
-    username = '',
-  } = profile?.userProfile;
+  const { name = '', photo = '', user = '', _id = '', username = '' } = profile?.userProfile;
   return {
     name,
     photo,
@@ -71,20 +53,14 @@ export const selectFollowing = createSelector(
   (profile) => profile.userProfile?.following
 );
 
-export const selectCurrentProfile = createSelector(
-  [selectProfile],
-  (profile) => profile.profile
-);
+export const selectCurrentProfile = createSelector([selectProfile], (profile) => profile.profile);
 
 export const selectUsername = createSelector(
   [selectProfile],
   (profile) => profile.userProfile?.username
 );
 
-export const selectFetchProfile = createSelector(
-  [selectProfile],
-  (profile) => !profile.profile
-);
+export const selectFetchProfile = createSelector([selectProfile], (profile) => !profile.profile);
 
 export const selectRealtimeNotification = createSelector(
   [selectProfile],

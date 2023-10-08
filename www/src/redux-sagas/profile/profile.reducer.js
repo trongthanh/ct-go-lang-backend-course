@@ -178,20 +178,12 @@ const profileReducer = (state = initialStateProfile, action) => {
     case profileActionTypes.LIKE_POST_START:
       return {
         ...state,
-        posts: optimizeLikePost(
-          state.posts,
-          action.payload.postId,
-          action.payload.userId
-        ),
+        posts: optimizeLikePost(state.posts, action.payload.postId, action.payload.userId),
       };
     case profileActionTypes.LIKE_POST_SUCCESS:
       return {
         ...state,
-        posts: likePost(
-          state.posts,
-          action.payload.postId,
-          action.payload.post
-        ),
+        posts: likePost(state.posts, action.payload.postId, action.payload.post),
       };
     default:
       return state;

@@ -14,6 +14,7 @@ const PostContainer = ({
   singlePostHandler = false,
   deletePost,
 }) => {
+  console.log('posts', posts);
   const { socket } = React.useContext(SocketContext);
   const submitHandler = (id, postId, isLiked) => {
     if (singlePostHandler) return singlePostHandler(userId, socket, isLiked);
@@ -21,7 +22,7 @@ const PostContainer = ({
   };
   return (
     <PostsContainer>
-      {posts.length
+      {posts && posts.length
         ? posts.map(
             ({
               createdAt,
@@ -33,16 +34,16 @@ const PostContainer = ({
             }) => (
               <DisplayPost
                 key={postId}
-                post={image[0] && image[0]?.url}
+                post={image && image?.url}
                 name={name}
                 username={username}
                 photo={photo?.secure_url || photo}
                 caption={caption}
                 createdAt={createdAt}
-                likes={likes}
+                likes={likes || []}
                 id={_id}
                 postId={postId}
-                isLiked={likes.includes(userId)}
+                isLiked={likes && likes.includes(userId)}
                 submitHandler={submitHandler}
                 showDelete={singlePostHandler && userId === _id}
                 deletePost={deletePost}

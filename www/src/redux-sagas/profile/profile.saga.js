@@ -27,7 +27,7 @@ export function* uploadImage({ payload }) {
     const { data, type } = payload;
     const response = yield call(PrivateApiRoute, 'profile/profile-photo/', data, type, true, true);
     console.log(response);
-    yield put(uploadImageSuccess(response.data.profile.photo.secure_url));
+    yield put(uploadImageSuccess(response.data.data.profile.photo.secure_url));
   } catch (error) {
     console.log(error, error.response);
     const id = getUniqueId();
@@ -77,8 +77,8 @@ export function* followStart({ payload }) {
     console.log(res);
     yield put(
       followSuccess({
-        data: res.data.following.following,
-        user: res.data.user,
+        data: res.data.data.following.following,
+        user: res.data.data.user,
       })
     );
     if (socket) {
@@ -102,7 +102,7 @@ export function* getNotification() {
   try {
     const response = yield call(PrivateApiRoute, 'profile/notifications', null, 'get', true, false);
     console.log(response);
-    yield put(fetchNotificationSuccess(response.data?.notifications));
+    yield put(fetchNotificationSuccess(response.data?.data.notifications));
     yield call(setIsCached, 'notifications', true);
   } catch (error) {
     console.log(error.response);
@@ -144,7 +144,7 @@ export function* getPost() {
   try {
     const response = yield call(PrivateApiRoute, 'post/all', null, 'get', true, false);
     console.log(response);
-    yield put(getPostSuccess(response.data.posts));
+    yield put(getPostSuccess(response.data.data.posts));
     yield call(setIsCached, 'posts', true);
   } catch (error) {
     console.log(error);
@@ -170,8 +170,8 @@ export function* likePost({ payload }) {
     console.log(res);
     yield put(
       likePostSuccess({
-        postId: res.data.post._id,
-        post: res.data.post,
+        postId: res.data.data.post._id,
+        post: res.data.data.post,
       })
     );
     if (socket && id !== userId && !isLiked) {

@@ -1,11 +1,7 @@
 import React from 'react';
 import { formatDistance } from 'date-fns';
 import ProfileImage from '../../shared/ProfileImage/ProfileImage.component';
-import {
-  IconContainer,
-  ShowDelete,
-  ShowNotif,
-} from '../../MainNotification/Notification.style';
+import { IconContainer, ShowDelete, ShowNotif } from '../../MainNotification/Notification.style';
 
 import {
   Date as Time,
@@ -40,8 +36,7 @@ const Post = ({
     addSuffix: true,
     includeSeconds: true,
   }).split(' ');
-  const formattedTime =
-    time.length > 3 ? time.slice(1).join(' ') : time.join(' ');
+  const formattedTime = time.length > 3 ? time.slice(1).join(' ') : time.join(' ');
   return (
     <PostContainer>
       <Navigate to={`/${username}`}>
@@ -54,20 +49,18 @@ const Post = ({
       <UserPost src={post} />
       <IconContainer>
         <Button onClick={() => submitHandler(id, postId, isLiked)}>
-          <ShowNotif hasNotification={isLiked} className='fas fa-heart' />
+          <ShowNotif hasNotification={isLiked} className="fas fa-heart" />
         </Button>
         {showDelete ? (
           <Button onClick={deletePost}>
-            <ShowDelete className='fas fa-trash' />
+            <ShowDelete className="fas fa-trash" />
           </Button>
         ) : (
           ''
         )}
       </IconContainer>
       {likes.length ? (
-        <Like>
-          {likes.length > 1 ? `${likes.length} likes` : `${likes.length} like`}
-        </Like>
+        <Like>{likes.length > 1 ? `${likes.length} likes` : `${likes.length} like`}</Like>
       ) : (
         <div />
       )}

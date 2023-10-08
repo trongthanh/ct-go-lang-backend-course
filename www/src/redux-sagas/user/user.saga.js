@@ -63,15 +63,15 @@ export function* loadUser() {
     const response = yield call(PrivateApiRoutes, 'user/me', null, 'get', true, false);
     yield put(
       loadUserSuccess({
-        id: response.data.profile._id,
-        user: response.data.profile.user,
+        id: response.data.data.profile._id,
+        user: response.data.data.profile.userid,
       })
     );
     console.log(response);
     yield put(
       setUserProfile({
-        profile: response.data.profile,
-        notification: response.data.notification,
+        profile: response.data.data.profile,
+        notification: response.data.data.notification,
       })
     );
   } catch (e) {
