@@ -60,7 +60,7 @@ func createServer(hdl *controller.Handler) *echo.Echo {
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `${time_rfc3339} ${method} ${status} ${uri}, error=${error} \n`,
+		Format: "${time_rfc3339} ${method} ${status} ${uri}, error=${error} \n",
 	}))
 
 	public := e.Group("/api/public")

@@ -28,7 +28,8 @@ type PostsByUserRequest struct {
 }
 
 type CreatePostRequest struct {
-	Post     Post
+	Userid   string `json:"userid"`
+	Caption  string `json:"caption"`
 	Filename string
 	File     io.Reader
 }

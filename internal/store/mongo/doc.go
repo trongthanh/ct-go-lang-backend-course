@@ -49,18 +49,24 @@ func NewProfileDoc(profile entity.Profile) *ProfileDoc {
 }
 
 func (pd *ProfileDoc) ToProfile() entity.Profile {
+	pd.Profile.Id = pd.DocId.Hex()
 	return pd.Profile
 }
 
 type PostDoc struct {
-	Doc         `bson:",inline"`
+	DocId       primitive.ObjectID `bson:"_id"`
+	Version     int64              `bson:"version"`
 	entity.Post `bson:",inline"`
 }
 
 func NewPostDoc(post entity.Post) *PostDoc {
+	doc := NewDoc()
+	post.CreatedAt = doc.CreatedAt
+	post.UpdatedAt = doc.UpdatedAt
 	return &PostDoc{
-		Doc:  NewDoc(),
-		Post: post,
+		DocId:   doc.DocId,
+		Version: doc.Version,
+		Post:    post,
 	}
 }
 

@@ -81,7 +81,8 @@ func (uc *ucImplement) Self(ctx context.Context, req *entity.SelfRequest) (*enti
 	}
 
 	return &entity.ProfileResponse{
-		Profile: profile.ToProfile(),
+		Profile:      profile.ToProfile(),
+		Notification: 0, // TODO: hardcode empty
 	}, nil
 }
 

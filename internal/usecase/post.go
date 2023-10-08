@@ -13,11 +13,17 @@ func (uc *ucImplement) CreatePost(ctx context.Context, req *entity.CreatePostReq
 	if err != nil {
 		return nil, err
 	}
-	imgInfo.URL = "/images/" + imgInfo.Filename
 	// inline image info in Post
-	req.Post.Image = imgInfo
+	post := entity.Post{
+		Userid:   req.Userid,
+		Caption:  req.Caption,
+		Image:    imgInfo,
+		Likes:    []string{},
+		HashTags: []string{},
+		Comment:  []entity.Comment{},
+	}
 
-	postDoc, err := uc.postStore.Save(req.Post)
+	postDoc, err := uc.postStore.Save(post)
 
 	if err != nil {
 		return nil, err

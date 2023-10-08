@@ -34,10 +34,8 @@ func (h *Handler) CreatePost(c echo.Context) error {
 	}
 
 	createPostRequest := &entity.CreatePostRequest{
-		Post: entity.Post{
-			Userid:  userid,
-			Caption: caption,
-		},
+		Userid:   userid,
+		Caption:  caption,
 		Filename: imageHeader.Filename,
 		File:     file,
 	}

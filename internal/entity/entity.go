@@ -5,13 +5,14 @@ import (
 )
 
 type User struct {
-	Id             string `json: "id"             bson:"id,omitempty"`
+	Id             string `json:"_id,omitempty"`
 	Email          string `json:"email"           bson:"email" unique:"true"`
 	HashedPassword string `json:"hashed_password" bson:"hashed_password"`
 	Active         bool   `json:"active"          bson:"active"`
 }
 
 type Profile struct {
+	Id           string    `json:"_id,omitempty"`
 	Userid       string    `json:"userid"        bson:"userid"`
 	Bio          string    `json:"bio"           bson:"bio"`
 	AccountType  string    `json:"account_type"  bson:"account_type"`
@@ -29,19 +30,21 @@ type Profile struct {
 
 type Image struct {
 	Filename string `json:"filename" bson:"filename"`
-	URL      string `json:"url"  bson:"url"`
-	Path     string `json:"path" bson:"path"`
+	URL      string `json:"url"      bson:"url"`
+	Path     string `json:"path"     bson:"path"`
 }
 
 type Post struct {
-	Id       string    `json: "id"      bson:"id,omitempty"`
-	Userid   string    `json:"userid"   bson:"userid"`
-	Caption  string    `json:"caption"  bson:"caption"`
-	Location string    `json:"location" bson:"location"`
-	HashTags []string  `json:"hashtags" bson:"hashtags"`
-	Likes    []string  `json:"likes"    bson:"likes"`
-	Image    Image     `json:"image"    bson:"image"`
-	Comment  []Comment `json:"comment"  bson:"comment"`
+	Id        string    `json:"_id,omitempty"`
+	CreatedAt time.Time `json:"createdAt"           bson:"created_at"`
+	UpdatedAt time.Time `json:"updatedAt"           bson:"updated_at"`
+	Image     Image     `json:"image"               bson:"image"`
+	Userid    string    `json:"userid"              bson:"userid"`
+	Caption   string    `json:"caption"             bson:"caption"`
+	Location  string    `json:"location"            bson:"location"`
+	HashTags  []string  `json:"hashtags,nilasempty" bson:"hashtags"`
+	Likes     []string  `json:"likes,nilasempty"    bson:"likes"`
+	Comment   []Comment `json:"comment,nilasempty"  bson:"comment"`
 }
 
 type PostRes struct {
@@ -50,6 +53,6 @@ type PostRes struct {
 }
 
 type Comment struct {
-	Userid  string `json:"userid" bson:"userid"`
+	Userid  string `json:"userid"    bson:"userid"`
 	Comment string `json:"comment"   bson:"comment"`
 }

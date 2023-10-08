@@ -17,7 +17,8 @@ type LoginResponse struct {
 }
 
 type ProfileResponse struct {
-	Profile Profile `json:"profile"`
+	Profile      Profile `json:"profile"`
+	Notification int     `json:"notification"`
 }
 
 type ProfilesResponse struct {
