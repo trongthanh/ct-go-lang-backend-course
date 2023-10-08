@@ -20,11 +20,11 @@ func New() *LocalBucket {
 	}
 }
 
-func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) (entity.Image, error) {
+func (lb *LocalBucket) SaveImage(ctx context.Context, fileName string, fileReader io.Reader) (entity.Image, error) {
 	lb.mu.Lock()
 	defer lb.mu.Unlock()
 
-	localPath := getPublicFolder() + "/" + name
+	localPath := getPublicFolder() + "/" + fileName
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
@@ -33,17 +33,17 @@ func (lb *LocalBucket) SaveImage(ctx context.Context, name string, r io.Reader) 
 	defer dst.Close()
 
 	// Copy
-	if _, err = io.Copy(dst, r); err != nil {
+	if _, err = io.Copy(dst, fileReader); err != nil {
 		return entity.Image{}, err
 	}
 
 	// store metadata
 	Image := entity.Image{
-		URL:      "http://localhost:8090/" + name,
-		Filename: name,
+		URL:      "http://localhost:8090/" + fileName,
+		Filename: fileName,
 		Path:     localPath,
 	}
-	lb.data[name] = Image
+	lb.data[fileName] = Image
 
 	fmt.Println("Image saved to: " + Image.Path)
 

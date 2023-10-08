@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"gosocial/config"
 	"gosocial/internal/controller"
 	mongostore "gosocial/internal/store/mongo"
 	"gosocial/internal/usecase"
 	"gosocial/pkg/auth"
-	imagebucket "gosocial/pkg/bucket"
+	googlestore "gosocial/pkg/bucket/google"
 	"gosocial/pkg/validator"
 
 	"github.com/labstack/echo/v4"
@@ -22,8 +23,8 @@ func main() {
 		Port:             "8090",
 		MongoURI:         "mongodb://localhost:27017",
 		MongoDB:          "gocourse_db",
-		GoogleCredFile:   "",
-		GoogleBucketName: "",
+		GoogleCredFile:   "gcs-service-account.json",
+		GoogleBucketName: "ct-go-social",
 	}
 
 	log.EnableColor()
@@ -38,7 +39,7 @@ func main() {
 	profileStore := mongostore.NewProfileStore(db, "profiles")
 	postStore := mongostore.NewPostStore(db, "posts")
 	imageStore := mongostore.NewImageStore(db, "images")
-	imgBucket := imagebucket.New()
+	imgBucket := googlestore.New(context.TODO(), config.GoogleBucketName, config.GoogleCredFile)
 	uc := usecase.New(config, userStore, profileStore, postStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 

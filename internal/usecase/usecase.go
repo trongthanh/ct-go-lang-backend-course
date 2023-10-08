@@ -15,7 +15,7 @@ type ImageStore interface {
 }
 
 type ImageBucket interface {
-	SaveImage(ctx context.Context, name string, r io.Reader) (entity.Image, error)
+	SaveImage(ctx context.Context, fileName string, fileReader io.Reader) (entity.Image, error)
 }
 
 type UserStore interface {

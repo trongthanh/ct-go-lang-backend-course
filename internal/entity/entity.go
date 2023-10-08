@@ -32,6 +32,7 @@ type Image struct {
 	Filename string `json:"filename" bson:"filename"`
 	URL      string `json:"url"      bson:"url"`
 	Path     string `json:"path"     bson:"path"`
+	Size     int64  `json:"size"     bson:"size"`
 }
 
 type Post struct {
