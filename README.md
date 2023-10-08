@@ -8,9 +8,9 @@ Side project branch
 
 1. Install mongodb community server and start it at `mongodb://localhost:27017`
 1. Build front end application:
-	- In `www`, run `npm install`
-	- Then run `npm run build`
+    - In `www`, run `npm install`
+    - Then run `npm run build`
+1. Get GCS service account .json and place it at `gcs.json`
 1. Start Go app (which serve both API and static SPA):
-	- At repo root, run: `go run .`
+    - At repo root, run: `go run .`
 1. Visit web app at `http://localhost:8090/`
-

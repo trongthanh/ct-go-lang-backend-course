@@ -17,29 +17,22 @@ import (
 )
 
 func main() {
-	config := config.Config{
-		Scheme:           "http://",
-		Host:             "localhost",
-		Port:             "8090",
-		MongoURI:         "mongodb://localhost:27017",
-		MongoDB:          "gocourse_db",
-		GoogleCredFile:   "gcs-service-account.json",
-		GoogleBucketName: "ct-go-social",
-	}
+	config := config.LoadConfig()
 
 	log.EnableColor()
 
-	fmt.Println("Connect to MongoDB:", config.MongoURI)
 	db, mongoErr := mongostore.Connect(config.MongoURI, config.MongoDB)
 	if mongoErr != nil {
 		fmt.Println("Error connecting to MongoDB:", mongoErr)
 		log.Error(mongoErr)
 	}
+	fmt.Println("Connect to MongoDB:", config.MongoURI)
 	userStore := mongostore.NewUserStore(db, "users")
 	profileStore := mongostore.NewProfileStore(db, "profiles")
 	postStore := mongostore.NewPostStore(db, "posts")
 	imageStore := mongostore.NewImageStore(db, "images")
 	imgBucket := googlestore.New(context.TODO(), config.GoogleBucketName, config.GoogleCredFile)
+	fmt.Println("Connect to Google Cloud Storage:", config.GoogleBucketName)
 	uc := usecase.New(config, userStore, profileStore, postStore, imageStore, imgBucket)
 	hdl := controller.New(uc)
 

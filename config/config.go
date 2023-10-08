@@ -12,13 +12,14 @@ import (
 var conf Config
 
 type Config struct {
-	Scheme           string
-	Host             string
-	Port             string
-	MongoURI         string
-	MongoDB          string
-	GoogleCredFile   string
-	GoogleBucketName string
+	Port               string
+	MongoURI           string
+	MongoDB            string
+	GoogleCredFile     string
+	GoogleBucketName   string
+	KafkaBrokers       string
+	KafkaConsumerGroup string
+	KafkaTopic         string
 }
 
 func Init(config Config) Config {
@@ -33,21 +34,25 @@ func Get() (Config, error) {
 	return conf, nil
 }
 
-// unused
 func LoadConfig() Config {
-	return Config{
-		Port:             getConfig("PORT"),
-		MongoURI:         getConfig("MONGO_URI"),
-		MongoDB:          getConfig("MONGO_DB"),
-		GoogleCredFile:   getConfig("GOOGLE_APPLICATION_CREDENTIALS"),
-		GoogleBucketName: getConfig("GOOGLE_APPLICATION_BUCKET"),
+	conf := Config{
+		Port:               getConfig("PORT", "8090"),
+		MongoURI:           getConfig("MONGO_URI", "mongodb://localhost:27017"),
+		MongoDB:            getConfig("MONGO_DB", "gosocial_db"),
+		GoogleCredFile:     getConfig("GOOGLE_APPLICATION_CREDENTIALS", "gcs.json"),
+		GoogleBucketName:   getConfig("GOOGLE_APPLICATION_BUCKET", "ct-go-social"),
+		KafkaBrokers:       getConfig("KAFKA_BROKERS", "localhost:9093"),
+		KafkaConsumerGroup: getConfig("KAFKA_CONSUMER_GROUP", "group_notify"),
+		KafkaTopic:         getConfig("KAFKA_TOPIC", "like_event"),
 	}
+	return conf
 }
 
-func getConfig(key string) string {
+func getConfig(key string, defaultVal string) string {
 	val := os.Getenv(key)
 	if len(val) == 0 {
-		panic(fmt.Sprintf("Key %s cannot empty", key))
+		fmt.Printf("Env %s is empty, fallback to default value %s", key, defaultVal)
+		val = defaultVal
 	}
 	return val
 }
