@@ -51,7 +51,7 @@ func LoadConfig() Config {
 func getConfig(key string, defaultVal string) string {
 	val := os.Getenv(key)
 	if len(val) == 0 {
-		fmt.Printf("Env %s is empty, fallback to default value %s", key, defaultVal)
+		fmt.Printf("Env %s is empty, fallback to default value %s\n", key, defaultVal)
 		val = defaultVal
 	}
 	return val

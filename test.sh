@@ -47,9 +47,17 @@ curl -i -X POST "http://localhost:8090/api/private/post/create" \
 	 -F 'file=@/Users/trantrongthanh/Pictures/tot.png'
 
 echo "--------------------------"
-echo "List posts"
+echo "List posts /post/all"
 sleep 1
-curl -i "http://localhost:8090/api/post/all" \
+curl -i "http://localhost:8090/api/private/post/all" \
+     -H "Authorization: Bearer $TOKEN" \
+     -H 'Content-Type: application/json; charset=utf-8'
+
+
+echo "--------------------------"
+echo "Like a post"
+sleep 1
+curl -i -X POST "http://localhost:8090/api/private/post/like/65227b0f0dff15d1c45490ad" \
      -H "Authorization: Bearer $TOKEN" \
      -H 'Content-Type: application/json; charset=utf-8'
 

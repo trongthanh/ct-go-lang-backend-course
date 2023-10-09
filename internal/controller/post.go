@@ -68,10 +68,14 @@ func (h *Handler) GetPosts(c echo.Context) error {
 }
 
 func (h *Handler) GetPostsByUser(c echo.Context) error {
+	userid := c.Param("userid")
 
-	var req entity.PostsByUserRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
+	if len(userid) == 0 {
+		return echo.NewHTTPError(http.StatusInternalServerError, NewResponsePayload("error", "Userid is required"))
+	}
+
+	req := entity.PostsByUserRequest{
+		Userid: userid,
 	}
 
 	posts, err := h.uc.GetPostsByUser(ctx, &req)
@@ -100,10 +104,16 @@ func (h *Handler) DeletePost(c echo.Context) error {
 }
 
 func (h *Handler) LikePost(c echo.Context) error {
+	postid := c.Param("postid")
+	userid := c.Get("userid").(string)
 
-	var req entity.LikePostRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", err.Error()))
+	if len(postid) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, NewResponsePayload("error", "Postid is required"))
+	}
+
+	req := entity.LikePostRequest{
+		Postid: postid,
+		Userid: userid,
 	}
 
 	resp, err := h.uc.LikePost(ctx, &req)

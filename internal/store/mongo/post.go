@@ -2,6 +2,7 @@ package mongostore
 
 import (
 	"context"
+	"fmt"
 	"gosocial/internal/entity"
 	"time"
 
@@ -105,21 +106,42 @@ func (u *postStore) DeleteOne(postid string) error {
 }
 
 func (u *postStore) LikePost(postid string, userid string) (int, error) {
+	fmt.Println("Store like post:", postid, userid)
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), u.timeout)
 	defer cancelFn()
 
-	_, err := u.client.UpdateOne(ctx, bson.M{"_id": postid},
-		bson.M{"$addToSet": bson.M{"likes": bson.M{"userid": userid}}})
-	if err != nil {
-		return -1, err
-	}
+	id, _ := primitive.ObjectIDFromHex(postid)
+	filter := bson.D{{Key: "_id", Value: id}}
 
 	var postDoc PostDoc
-	err = u.client.FindOne(ctx, bson.M{"_id": postid}).Decode(&postDoc)
+	err := u.client.FindOne(context.Background(), filter).Decode(&postDoc)
+
 	if err != nil {
 		return -1, err
 	}
 
-	return len(postDoc.Post.Likes), nil
+	// Check if userID is not in the likes array
+	likes := postDoc.Post.Likes
+	found := false
+	for i, like := range likes {
+		if like == userid {
+			found = true
+			// Remove userID from likes by slicing it out
+			likes = append(likes[:i], likes[i+1:]...)
+			break
+		}
+	}
+
+	// append userid to postDoc.Post.Likes
+	if !found {
+		likes = append(likes, userid)
+	}
+
+	_, err = u.client.UpdateOne(ctx, filter, bson.M{"$set": bson.M{"likes": likes}})
+	if err != nil {
+		return -1, err
+	}
+
+	return len(likes), nil
 }

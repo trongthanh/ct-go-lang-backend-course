@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -o main
+# TODO: build front end
 
 FROM debian:buster-slim
 
@@ -14,7 +15,7 @@ WORKDIR /app
 COPY --from=builder /app/main ./
 COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs
 # front end
-COPY www ./www
+COPY www/build ./www/build
 # GCS service account
 COPY gcs.json ./
 
