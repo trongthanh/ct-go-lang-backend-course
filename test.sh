@@ -3,13 +3,11 @@
 ## Register
 echo "Register new user /register"
 sleep 1
-curl -i -X "POST" "http://localhost:8090/api/public/register" \
+curl -i -X "POST" "http://localhost:8090/api/public/user/signup" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
-	"username": "thanh",
-	"password": "12345678",
-	"full_name": "Thanh Tran",
-	"address": "200 Duong 3/2, Ho Chi Minh city"
+	"email": "thanh@chotot.vn",
+	"password": "12345678"
 }'
 
 echo "--------------------------"
@@ -18,10 +16,10 @@ echo "--------------------------"
 echo "Login /login"
 sleep 1
 #Make the POST request and store the response in a variable
-response=$(curl -i -X "POST" "http://localhost:8090/api/public/login" \
+response=$(curl -i -X "POST" "http://localhost:8090/api/public/user/login" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
-	"username": "thanh",
+	"email": "thanh@chotot.vn",
 	"password": "12345678"
 }')
 
@@ -33,33 +31,35 @@ echo "Recieved token: $TOKEN"
 
 echo "--------------------------"
 
-echo "Get user info /self"
+echo "Get own user profile /me"
 sleep 1
 ## Self
-curl -i "http://localhost:8090/api/private/self" \
+curl -i "http://localhost:8090/api/private/user/me" \
      -H "Authorization: Bearer $TOKEN"
 
 echo "--------------------------"
-echo "Upload image /upload-imag"
+echo "Create post (with image upload) /post/create"
 sleep 1
 ## Upload image
-curl -i -X POST "http://localhost:8090/api/private/upload-image" \
+curl -i -X POST "http://localhost:8090/api/private/post/create" \
      -H "Authorization: Bearer $TOKEN" \
+	 -F "caption=Hello world" \
 	 -F 'file=@/Users/trantrongthanh/Pictures/tot.png'
 
 echo "--------------------------"
-
-echo "Change password"
+echo "List posts /post/all"
 sleep 1
-## Change password
-curl -i "http://localhost:8090/api/private/change-password" \
+curl -i "http://localhost:8090/api/private/post/all" \
      -H "Authorization: Bearer $TOKEN" \
-     -H 'Content-Type: application/json; charset=utf-8' \
-     -d $'{
-	"current_password": "12345678",
-	"new_password": "12345679",
-	"repeat_password": "12345679"
-}'
+     -H 'Content-Type: application/json; charset=utf-8'
+
+
+echo "--------------------------"
+echo "Like a post"
+sleep 1
+curl -i -X POST "http://localhost:8090/api/private/post/like/65227b0f0dff15d1c45490ad" \
+     -H "Authorization: Bearer $TOKEN" \
+     -H 'Content-Type: application/json; charset=utf-8'
 
 
 echo ALL TESTS COMPLETED
